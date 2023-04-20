@@ -1,5 +1,17 @@
 # Cloud Engineering Meeting Minutes
 
+## Meeting: April 19th, 2023
+
+### Discussion
+
+- Review EDA
+- Define transformations 
+- Add date and augment data?
+- Review architecture draft
+
+### Tasks for next week
+
+
 ## Meeting: April 13th, 2023
 
 ### Discussion
