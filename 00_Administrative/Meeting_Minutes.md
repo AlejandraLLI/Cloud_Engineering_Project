@@ -4,13 +4,17 @@
 
 ### Discussion
 
-- Review EDA
-- Define transformations 
-- Add date and augment data?
-- Review architecture draft
+- Review EDA: decided to log price of ticket, not transform duration.  
+- Augment data: we don't think we need to augment data for this project. 
+- Add date to the data set from original flight. Beware that we might have some wrong dates associated to the clean data. 
+- Get a first draft of the architecture diagram. 
 
 ### Tasks for next week
 
+- Go to original data set and get a raw and clean version of our own (ALE) 
+- Architecture diagram in Draw.Io and complete deployment (Boss)
+- Create AWS account and profiles (Ruben)
+- Learn about pipe implementation & auotmation in AWS (Sam)
 
 ## Meeting: April 13th, 2023
 
