@@ -4,6 +4,28 @@
 
 ### Discussion
 
+- Data cleaning: discussed if we would bucket hours of arrival and departure or numerical values. The team voted for leaving the buckets. 
+	
+- Diagram: 
+	- AWS SQS processing que: might not need it. Ask Ashish and/or Michael how to trigger Lambda if there is not an SQS. 
+	- Debate if we need an EDA between raw and cleanning & if we want to store the EDA in an S3 bucket. 
+	- Training data: Is there a difference between ECS & ECS-Fargate? 
+	- Ask about how to generate plots for the Webapp. Connect AWS S3 directly to fargate or call a Lambda function to run a Python script and save images.
+	
+	Ask if this should be just for the project or if its from buisness perspective. 
+
+### Tasks for next week
+- Convert cleaning to python script. Use pep8, typing hints etc... (ALLI)
+- Create a second version of the diagram incorporating discussion and ask questions (BOSS). 
+- Upload clean data to S3 bucket (ALLI). 
+- Build ML models: linear regression, RF, and others (Ruben)
+- Start building API (Sam). 
+
+
+## Meeting: April 19th, 2023
+
+### Discussion
+
 - Review EDA: decided to log price of ticket, not transform duration.  
 - Augment data: we don't think we need to augment data for this project. 
 - Add date to the data set from original flight. Beware that we might have some wrong dates associated to the clean data. 
