@@ -12,3 +12,6 @@ Thumbs.db
 
 # --- Checkpoints generated Jupyter notebooks ---
 .ipynb_checkpoints/
+
+# --- R files ---
+.Rhistory
