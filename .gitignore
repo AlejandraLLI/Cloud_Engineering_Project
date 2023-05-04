@@ -25,3 +25,6 @@ Thumbs.db
 
 # --- R files ---
 .Rhistory
+
+# --- Venv ---
+predict_api/*
