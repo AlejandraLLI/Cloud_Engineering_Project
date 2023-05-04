@@ -1,60 +1,35 @@
-import pandas as pd
 import requests
 import json
 
-# Read the validation dataset
-validation_data = pd.read_csv(r"C:\Users\Sam\Desktop\NW Work\DATA\CDL\validation_motionsense_lstm.csv")
+# Define the API endpoint
+url = "http://127.0.0.1:5000/predict"
 
-# Define columns to pass into api
-api_columns = [
-    'attitude.roll', 
-    'attitude.pitch', 
-    'attitude.yaw',
-    'gravity.x', 
-    'gravity.y', 
-    'gravity.z',
-    'rotationRate.x', 
-    'rotationRate.y', 
-    'rotationRate.z',
-    'userAcceleration.x', 
-    'userAcceleration.y', 
-    'userAcceleration.z',
-    # 'attitude', 
-    # 'gravity', 
-    # 'rotationRate', 
-    # 'userAcceleration',
-    # 'weight', 
-    # 'height', 
-    # 'age'
-]
+# Define sample input data
+input_data = {
+    'airline': 'Vistara',
+    'flight': 'UK-836',
+    'class': 'Business',
+    'departure_time': 'Morning',
+    'origin': 'Chennai',
+    'duration': 6.25,
+    'stops': 1,
+    'arrival_time': 'Evening',
+    'destination': 'Bangalore'
+}
 
-validation_data = validation_data[api_columns]
-
-# Define the API endpoint URL
-api_url = "http://localhost:5000/predict"
-
-# Num rows to test
-num_test_rows = 100
-
-# Loop through the validation dataset and send requests to the API
-results = []
-for idx, row in validation_data.iloc[0:num_test_rows, :].iterrows():
-    # Convert the row to a dictionary
-    data = [row.to_dict()]
-    
-    # Send a POST request to the API with the data
-    response = requests.post(api_url, json=data)
-    
-    # Parse the JSON response and store the prediction
-    prediction = json.loads(response.text)['prediction']
-    results.append(prediction)
-    print(prediction)
-
-# Convert the results to a DataFrame
-results_df = pd.DataFrame(results, columns=['prediction'])
-
-# Save the results to a CSV file (optional)
-results_df.to_csv('api_results.csv', index=False)
-
-# Print the results
-print(results_df)
+try:
+    response = requests.post(url, json=input_data)
+    response.raise_for_status()  # Check if the request was successful
+    try:
+        predicted_price = json.loads(response.text)['prediction']
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON response received.")
+        print("Response text:", response.text)
+    except KeyError:
+        print("Error: 'prediction' key not found in the JSON response.")
+        print("Response text:", response.text)
+    else:
+        print("Predicted price:", predicted_price)
+except requests.exceptions.RequestException as e:
+    print("Error: Request failed.")
+    print(e)
