@@ -1,8 +1,15 @@
 # Folders
 00_Archive/
+04_Implementation/artifacts/
 
 # --- Logs ---
 *.log
+
+# --- environment --- 
+.venv
+
+# --- python --- 
+*__pycache__/
 
 # --- OS generated files --- 
 .DS_Store
