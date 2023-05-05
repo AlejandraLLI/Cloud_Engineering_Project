@@ -1,5 +1,23 @@
 # Cloud Engineering Meeting Minutes
 
+## Meeting: May 4th, 2023
+
+### Discussion
+
+- Diagram seems to be correct. We will wait to hear back from Michael to know if we need to include API gateway and Lambda into webapp. 
+- Checked scripts for aquiring, creating and cleaning data. Need to fix the zip downloading. Need to ask about how the pipeline will run and might need to create a function to upload directly to S3. 
+- We took a look at the models. Linear regression is too high and we have a lot of features (OHE). Need to double check. So far XGBoost is the best model, but not by much. 
+- We have a first version of the API runing in Flask. 
+
+### Tasks for next week 
+
+- Build a function to upload to S3. Ask about how to have multiple users configured in my machine. (ALE)
+- Build source modules for generating features and modelling (Ruben)
+- Cost Estimation (Boss)
+- Build app interface (Boss)
+- Setup API endpoint on EC2 (Sam) 
+
+
 ## Meeting: April 26th, 2023
 
 ### Discussion
