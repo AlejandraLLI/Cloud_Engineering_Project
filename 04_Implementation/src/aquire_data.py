@@ -69,5 +69,3 @@ def acquire_data(url: str, save_path: Path) -> None:
     except Exception as e:
         #logger.error("Error occurred while trying to write dataset to file: %s", e)
         sys.exit(1)
-
-
