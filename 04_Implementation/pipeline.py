@@ -7,8 +7,8 @@ import yaml
 
 # Self-built modules
 import src.aquire_data as ad
-import src.create_data as cd
-import src.generate_features as gf
+import src.raw_data as rd
+import src.clean_data as cd
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -38,9 +38,9 @@ if __name__ == "__main__":
     ##ad.acquire_data(run_config["data_source"], artifacts / "source_data.zip")
 
     # Create raw data set from source and save to csv
-    raw_data = cd.create_data(**config["create_data"])
-    cd.save_dataset(raw_data, artifacts / "raw_data.csv")
+    raw_data = rd.create_data(**config["create_data"])
+    rd.save_dataset(raw_data, artifacts / "raw_data.csv")
 
     # Clean raw data and save to csv
-    #clean_data = gf.clean_data(raw_data, config["clean_data"])
-    #cd.save_dataset(clean_data, artifacts / "clean_data.csv")
+    clean_data = cd.clean_data(raw_data, config["clean_data"])
+    rd.save_dataset(clean_data, artifacts / "clean_data.csv")
