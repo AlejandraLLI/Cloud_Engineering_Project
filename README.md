@@ -1,2 +1,14 @@
-# Cloud_Engineering_Project
-Final Project for Cloud Engineering
+# Cloud_Engineering Final Project
+## Predicting Airline Prices 
+- Alejandra Lelo de Larrea Ibarra ali8110
+- Bannasorn Paspanthong
+- Ruben Nakano
+- Samuel Swain
+
+# Description
+
+# Modules 
+
+# AWS Implementation
+
+# Docker? 
