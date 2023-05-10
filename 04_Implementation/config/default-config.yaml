@@ -7,64 +7,71 @@ run_config:
   data_source: https://www.kaggle.com/datasets/shubhambathwal/flight-price-prediction/download?datasetVersionNumber=2
   output: artifacts
 
-create_data:
-  source_file: ../02_Data/source_data.zip
+aws_config:
+  sso_profile: cloud_final_project
+  bucket_name: msia423-g7
+
+raw_data:
+  file_key: source_data.zip
 
 clean_data:
-  rename_cols:
-    date: book_date
-    from: origin
-    to: destination
-  concat_cols: 
-    flight:
-      col1: ch_code
-      col2: num_code
-      col_type: str
-  bucket_time_cols:
-    departure_time: dep_time
-    arrival_time: arr_time
-  time_to_hours:
-    duration: time_taken
-  stops_cols: 
-    stops: stop
-  price_cols: 
-      price:
-        pattern: ',' 
-        replacement: ''
-  selected_features:
-    - book_date
-    - airline
-    - flight
-    - class
-    - departure_time
-    - origin
-    - duration
-    - stops
-    - arrival_time
-    - destination
-    - price
-  get_stops:
-    pattern: (non-stop|1-stop|2\+-stop)
-    stop_dict:
-      non-stop: 0
-      1-stop: 1
-      2+-stop: 2
-  bucket_hours:
-    early_morning: 
-      min: 4
-      max: 8 
-    morning:
-      min: 8
-      max: 12
-    afternoon:
-      min: 12
-      max: 16
-    evening:
-      min: 16
-      max: 20
-    night:
-      min: 20
-      max: 24
-    late_night:
-      min: 0
-      max: 4
+  raw_key: raw_data.csv
+  clean_config:
+    rename_cols:
+      date: book_date
+      from: origin
+      to: destination
+    concat_cols: 
+      flight:
+        col1: ch_code
+        col2: num_code
+        col_type: str
+    bucket_time_cols:
+      departure_time: dep_time
+      arrival_time: arr_time
+    time_to_hours:
+      duration: time_taken
+    stops_cols: 
+      stops: stop
+    price_cols: 
+        price:
+          pattern: ',' 
+          replacement: ''
+    selected_features:
+      - book_date
+      - airline
+      - flight
+      - class
+      - departure_time
+      - origin
+      - duration
+      - stops
+      - arrival_time
+      - destination
+      - price
+    get_stops:
+      pattern: (non-stop|1-stop|2\+-stop)
+      stop_dict:
+        non-stop: 0
+        1-stop: 1
+        2+-stop: 2
+    bucket_hours:
+      early_morning: 
+        min: 4
+        max: 8 
+      morning:
+        min: 8
+        max: 12
+      afternoon:
+        min: 12
+        max: 16
+      evening:
+        min: 16
+        max: 20
+      night:
+        min: 20
+        max: 24
+      late_night:
+        min: 0
+        max: 4
+  
