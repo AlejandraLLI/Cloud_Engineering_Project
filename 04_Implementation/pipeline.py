@@ -9,6 +9,7 @@ import yaml
 import src.aquire_data as ad
 import src.raw_data as rd
 import src.clean_data as cd
+import src.generate_features as gf
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -44,3 +45,6 @@ if __name__ == "__main__":
     # Clean raw data and save to csv
     clean_data = cd.clean_data(raw_data, config["clean_data"])
     rd.save_dataset(clean_data, artifacts / "clean_data.csv")
+
+    features = gf.generate_features(clean_data, config["generate_features"])
+    rd.save_dataset(features, artifacts / "features.csv")
