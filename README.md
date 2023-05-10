@@ -9,6 +9,12 @@
 
 # Modules 
 
+## Raw data 
+
+## Clean data 
+
+## AWS data
+
 # AWS Implementation
 
 # Docker? 
