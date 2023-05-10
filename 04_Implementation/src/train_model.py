@@ -19,6 +19,17 @@ from sklearn.compose import ColumnTransformer
 
 
 def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[dict, dict]:
+    """
+    Trains and evaluates models.
+
+    Args:
+        features (pandas.DataFrame): Data set with features.
+        config (dict): Configuration dictionary for training and evaluation.
+
+    Returns:
+        dict: Evaluation results.
+        dict: Details of trained models.
+    """
         
     # Define preprocessor and models for Pipeline
     preprocessor: ColumnTransformer = define_preprocessor(config)
@@ -50,6 +61,15 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[dict, dict
 
 
 def define_preprocessor(config: dict) -> ColumnTransformer:
+    """
+    Defines a preprocessor for the model.
+
+    Args:
+        config (dict): Configuration dictionary for training and evaluation.
+
+    Returns:
+        sklearn ColumnTransformer: Preprocessor for the model.
+    """
 
     # Define preprocessor
     preprocessor = ColumnTransformer(transformers=[
@@ -61,6 +81,15 @@ def define_preprocessor(config: dict) -> ColumnTransformer:
 
 
 def define_models(config: dict) -> dict:
+    """
+    Defines models for the pipeline.
+
+    Args:
+        config (dict): Configuration dictionary for training and evaluation.
+
+    Returns:
+        dict: Dictionary of model instances.
+    """
 
     # Define mapping between model names and model classes
     models_mapping: dict = {
@@ -130,6 +159,16 @@ def calculate_metrics(y_test, y_pred):
 
 
 def save_results(results: dict, save_path: Path):
+    """
+    Saves evaluation results to a yaml file.
+
+    Args:
+        results (dict): Evaluation results.
+        save_path (Path): Path to save the results.
+
+    Returns:
+        None
+    """
     with open(save_path, 'w') as file:
         yaml.dump(results, file)
 
