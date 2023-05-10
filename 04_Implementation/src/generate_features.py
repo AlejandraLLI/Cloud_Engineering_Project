@@ -5,6 +5,18 @@ from pathlib import Path
 
 
 def generate_features(clean_data: pd.DataFrame, feature_config: dict) -> pd.DataFrame:
+    """
+    This function generates features from the cleaned data set
+
+    Args:
+    --------------------------------------------
+        clean_data: Cleaned data set
+        feature_config: Configuration dictionary for feature generation
+
+    Returns:
+    --------------------------------------------
+        features: Data set with generated features
+    """
 
     features = df_clean.copy()
 
