@@ -121,10 +121,10 @@ def calculate_metrics(y_test, y_pred):
     Returns:
         dict: Evaluation metrics.
     """
-    mse = mean_squared_error(y_test, y_pred)
-    mae = mean_absolute_error(y_test, y_pred)
-    rmse = np.sqrt(mse)
-    r2 = r2_score(y_test, y_pred)
+    mse = float(mean_squared_error(y_test, y_pred))
+    mae = float(mean_absolute_error(y_test, y_pred))
+    rmse = float(np.sqrt(mse))
+    r2 = float(r2_score(y_test, y_pred))
 
     return {'MSE': mse, 'MAE': mae, 'RMSE': rmse, 'R2': r2}
 
