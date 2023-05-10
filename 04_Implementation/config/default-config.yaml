@@ -70,4 +70,8 @@ clean_data:
       max: 4
 
 generate_features:
-  
+  drop_columns:
+    - book_date
+  filter_airlines: 1000
+  log_transform:
+    - price

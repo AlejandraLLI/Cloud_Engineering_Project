@@ -1,12 +1,11 @@
 # Libraries 
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 
 def generate_features(clean_data: pd.DataFrame, feature_config: dict) -> pd.DataFrame:
     """
-    This function generates features from the cleaned data set
+    This function generates features from the cleaned data set by calling sub-functions.
 
     Args:
     --------------------------------------------
@@ -18,15 +17,30 @@ def generate_features(clean_data: pd.DataFrame, feature_config: dict) -> pd.Data
         features: Data set with generated features
     """
 
-    features = df_clean.copy()
+    features = clean_data.copy()
 
-    # Drop column book_date
-    features.drop(['book_date'], axis=1, inplace=True)
+    # Drop specified columns
+    features = drop_columns(features, feature_config['drop_columns'])
 
-    # Drop airlines with less than 1000 flights
-    features = features.groupby('airline').filter(lambda x: len(x) > 1000)
+    # Drop airlines with less than 'min_flights' flights
+    features = filter_airlines(features, feature_config['filter_airlines'])
 
-    # Log price
-    features['price'] = np.log(features['price'])
+    # Log transform specified columns
+    features = log_transform(features, feature_config['log_transform'])
 
     return features
+
+
+def drop_columns(data: pd.DataFrame, columns: list) -> pd.DataFrame:
+    """Drop specified columns from the DataFrame."""
+    return data.drop(columns, axis=1)
+
+def filter_airlines(data: pd.DataFrame, min_flights: int) -> pd.DataFrame:
+    """Drop airlines with less than 'min_flights' flights."""
+    return data.groupby('airline').filter(lambda x: len(x) > min_flights)
+
+def log_transform(data: pd.DataFrame, columns: list) -> pd.DataFrame:
+    """Apply log transformation to specified columns."""
+    for column in columns:
+        data[column] = np.log(data[column])
+    return data
