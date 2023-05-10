@@ -1,7 +1,10 @@
 # Libraries 
+import logging
+
 import numpy as np
 import pandas as pd
-import logging
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 
 #logger = logging.getLogger(__name__)
 
@@ -29,6 +32,13 @@ def generate_features(clean_data: pd.DataFrame, feature_config: dict) -> pd.Data
 
     # Log transform specified columns
     features = log_transform(features, feature_config.get('log_transform', []))
+
+
+    # Define transformations
+    preprocessor = ColumnTransformer(transformers=[
+        ('num', StandardScaler(), feature_config.get('numerical_features', [])),
+        ('cat', OneHotEncoder(handle_unknown='ignore'), feature_config.get('categorical_features', []))
+    ])
 
     return features
 

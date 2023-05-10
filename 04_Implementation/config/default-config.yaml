@@ -75,3 +75,14 @@ generate_features:
   filter_airlines: 1000
   log_transform:
     - price
+  categorical_features:
+    - airline
+    - flight
+    - class
+    - departure_time
+    - origin
+    - arrival_time
+    - destination
+    - stops
+  numerical_features:
+    - duration
