@@ -75,6 +75,8 @@ generate_features:
   filter_airlines: 1000
   log_transform:
     - price
+
+train_model:
   categorical_features:
     - airline
     - flight
@@ -86,3 +88,21 @@ generate_features:
     - stops
   numerical_features:
     - duration
+  models:
+    Linear Regression:
+      class: LinearRegression
+      parameters: {}
+    Random Forest:
+      class: RandomForestRegressor
+      parameters:
+        random_state: 423
+        model__n_estimators: 200
+        model__max_depth: 10
+        model__min_samples_split: 2
+    XGBoost:
+      class: XGBRegressor
+      parameters:
+        random_state: 423
+        model__n_estimators: 200
+        model__max_depth: 10
+        model__learning_rate: 0.1

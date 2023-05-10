@@ -46,5 +46,9 @@ if __name__ == "__main__":
     clean_data = cd.clean_data(raw_data, config["clean_data"])
     rd.save_dataset(clean_data, artifacts / "clean_data.csv")
 
+    # Generate features and save to csv
     features = gf.generate_features(clean_data, config["generate_features"])
     rd.save_dataset(features, artifacts / "features.csv")
+
+    # 
+    
