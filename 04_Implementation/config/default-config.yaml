@@ -99,13 +99,13 @@ train_model:
       class: RandomForestRegressor
       parameters:
         random_state: 423
-        model__n_estimators: 200
-        model__max_depth: 10
-        model__min_samples_split: 2
+        n_estimators: 200
+        max_depth: 10
+        min_samples_split: 2
     XGBoost:
       class: XGBRegressor
       parameters:
         random_state: 423
-        model__n_estimators: 200
-        model__max_depth: 10
-        model__learning_rate: 0.1
+        n_estimators: 200
+        max_depth: 10
+        learning_rate: 0.1

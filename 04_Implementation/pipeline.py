@@ -52,5 +52,5 @@ if __name__ == "__main__":
     rd.save_dataset(features, artifacts / "features.csv")
 
     # Train model and save results
-    results, tmo = tm.train_model(features, config["train_model"])
+    results, tmo = tm.train_and_evaluate(features, config["train_model"])
     tm.save_results(results, artifacts / "results.yaml")
