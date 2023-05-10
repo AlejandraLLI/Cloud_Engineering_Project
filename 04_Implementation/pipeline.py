@@ -10,6 +10,7 @@ import src.aquire_data as ad
 import src.raw_data as rd
 import src.clean_data as cd
 import src.generate_features as gf
+import src.train_model as tm
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -50,5 +51,6 @@ if __name__ == "__main__":
     features = gf.generate_features(clean_data, config["generate_features"])
     rd.save_dataset(features, artifacts / "features.csv")
 
-    # 
-    
+    # Train model and save results
+    results, tmo = tm.train_model(features, config["train_model"])
+    tm.save_results(results, artifacts / "results.csv")

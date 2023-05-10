@@ -88,6 +88,9 @@ train_model:
     - stops
   numerical_features:
     - duration
+  train_test_split:
+    test_size: 0.2
+    random_state: 423
   models:
     Linear Regression:
       class: LinearRegression
