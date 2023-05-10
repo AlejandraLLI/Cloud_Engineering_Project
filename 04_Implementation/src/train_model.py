@@ -1,4 +1,6 @@
 # Libraries 
+import yaml
+from pathlib import Path
 import numpy as np
 import pandas as pd
 
@@ -125,4 +127,7 @@ def calculate_metrics(y_test, y_pred):
     return {'MSE': mse, 'MAE': mae, 'RMSE': rmse, 'R2': r2}
 
 
+def save_results(results: dict, save_path: Path):
+    with open(save_path, 'w') as file:
+        yaml.dump(results, file)
 

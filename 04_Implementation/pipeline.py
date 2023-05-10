@@ -53,4 +53,4 @@ if __name__ == "__main__":
 
     # Train model and save results
     results, tmo = tm.train_model(features, config["train_model"])
-    tm.save_results(results, artifacts / "results.csv")
+    tm.save_results(results, artifacts / "results.yaml")
