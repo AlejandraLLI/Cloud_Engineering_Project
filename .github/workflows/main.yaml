@@ -2,9 +2,13 @@ name: Python Unit Tests
 
 on:
   push:
+    paths:
+      - '04_Implementation/**'
     branches:
       - main
   pull_request:
+    paths:
+      - '04_Implementation/**'
     branches:
       - main
 
@@ -12,6 +16,9 @@ jobs:
   test:
     runs-on: ubuntu-latest # define type of initial machine
 
+    defaults:
+      run:
+        working-directory: 04_Implementation
     steps:
       - name: Checkout code
         uses: actions/checkout@v3 
