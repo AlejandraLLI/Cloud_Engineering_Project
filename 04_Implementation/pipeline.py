@@ -64,11 +64,9 @@ if __name__ == "__main__":
 
     # Generate features
 
-    # Train models
-
-    # Score modes?
-
-    # Evaluate models
+    # Train model and save artifacts: train/test set, results, trained models
+    train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
+    tm.save_results(results, artifacts / "results.yaml")
 
     # Production?
 

@@ -18,7 +18,7 @@ from sklearn.compose import ColumnTransformer
 
 
 
-def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[dict, dict]:
+def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
     """
     Trains and evaluates models.
 
@@ -57,7 +57,11 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[dict, dict
         trained_models[name] = best_model
         results[name] = model_results
 
-    return results, trained_models
+    # Add target variable to training and test sets
+    train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
+    test: pd.DataFrame = pd.concat([X_test, y_test], axis=1)
+
+    return train, test, results, trained_models
 
 
 def define_preprocessor(config: dict) -> ColumnTransformer:
