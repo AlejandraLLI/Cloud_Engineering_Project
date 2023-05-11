@@ -27,7 +27,7 @@ jobs:
           pip install -r 04_Implementation/requirements.txt
 
       - name: Run tests # run tests on test folderP
-        run: pytest tests
+        run: pytest 04_Implementation/tests
       
       - name: Run code coverage
         run: pytest --cov tests
