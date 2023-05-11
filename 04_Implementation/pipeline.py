@@ -9,6 +9,8 @@ import yaml
 import src.aquire_data as ad
 import src.raw_data as rd
 import src.clean_data as cd
+import src.generate_features as gf
+import src.train_model as tm
 import src.aws_utils as aws
 
 # set up logger config for some file 
@@ -62,9 +64,13 @@ if __name__ == "__main__":
     aws.upload_csv_S3(clean_data, "clean_data.csv", **config["aws_config"])
     rd.save_dataset(clean_data, artifacts / "clean_data.csv")
 
-    # Generate features
+    # Generate features and save to csv
+    features = gf.generate_features(clean_data, config["generate_features"])
+    rd.save_dataset(features, artifacts / "features.csv")
 
-    # Train models
+    # Train model and save results
+    results, tmo = tm.train_and_evaluate(features, config["train_model"])
+    tm.save_results(results, artifacts / "results.yaml")
 
     # Score modes?
 

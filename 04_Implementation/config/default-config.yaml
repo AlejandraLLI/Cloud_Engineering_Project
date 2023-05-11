@@ -74,4 +74,44 @@ clean_data:
       late_night:
         min: 0
         max: 4
-  
+
+generate_features:
+  drop_columns:
+    - book_date
+  filter_airlines: 1000
+  log_transform:
+    - price
+
+train_model:
+  categorical_features:
+    - airline
+    - flight
+    - class
+    - departure_time
+    - origin
+    - arrival_time
+    - destination
+    - stops
+  numerical_features:
+    - duration
+  train_test_split:
+    test_size: 0.2
+    random_state: 423
+  models:
+    Linear Regression:
+      class: LinearRegression
+      parameters: {}
+    Random Forest:
+      class: RandomForestRegressor
+      parameters:
+        random_state: 423
+        n_estimators: 200
+        max_depth: 10
+        min_samples_split: 2
+    XGBoost:
+      class: XGBRegressor
+      parameters:
+        random_state: 423
+        n_estimators: 200
+        max_depth: 10
+        learning_rate: 0.1
