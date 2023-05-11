@@ -3,8 +3,6 @@ import yaml
 from pathlib import Path
 import numpy as np
 import pandas as pd
-
-
 from typing import Tuple
 
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -17,6 +15,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
 
+logger = logging.getLogger(__name__)
 
 def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
     """
@@ -173,6 +172,12 @@ def save_results(results: dict, save_path: Path):
     Returns:
         None
     """
-    with open(save_path, 'w') as file:
-        yaml.dump(results, file)
+
+    try:
+        with open(save_path, 'w') as file:
+            yaml.dump(results, file)
+    except yaml.YAMLError:
+        logger.error("Error while saving results to %s", save_path)
+    else:
+        logger.info("Results saved to %s", save_path)
 
