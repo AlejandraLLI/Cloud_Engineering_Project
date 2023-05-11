@@ -67,6 +67,7 @@ if __name__ == "__main__":
     # Train model and save artifacts: train/test set, results, trained models
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
     rd.save_dataset(train, artifacts / "train.csv")
+    aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
     rd.save_dataset(test, artifacts / "test.csv")
     tm.save_results(results, artifacts / "results.yaml")
     tm.save_results(tmo, artifacts / "trained_models.yaml")

@@ -1,6 +1,7 @@
 # Libraries 
 import yaml
 from pathlib import Path
+import logging
 import numpy as np
 import pandas as pd
 from typing import Tuple
@@ -15,6 +16,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
 
+# Set logger
 logger = logging.getLogger(__name__)
 
 def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
