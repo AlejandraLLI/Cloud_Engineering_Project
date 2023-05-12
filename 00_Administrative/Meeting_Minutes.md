@@ -1,5 +1,19 @@
 # Cloud Engineering Meeting Minutes
 
+## Meeting: May 11th, 2023
+
+### Discussion
+
+### Task for next week
+- Remove the profile_name option in aws functions (Ale)
+- Complete development of features and training: logging, testing, upload to s3 (Ruben)
+- Cost Estimation (Boss)
+- Try to update API so that the user don't input flight code and duration. (See picture in Slack). 
+- Show Ashish what we have so far and ask if we can run the whole pipeline in EC2 or if we need to split in the AWS services. 
+- Build Docker container for pipeline (Ale).
+- Start report and presentation. 
+
+
 ## Meeting: May 4th, 2023
 
 ### Discussion
