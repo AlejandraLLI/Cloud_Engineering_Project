@@ -8,7 +8,6 @@ run_config:
   output: artifacts
 
 aws_config:
-  sso_profile: cloud_final_project
   bucket_name: msia423-g7
 
 raw_data:

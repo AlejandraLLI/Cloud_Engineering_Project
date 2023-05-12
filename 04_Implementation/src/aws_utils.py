@@ -14,12 +14,11 @@ from io import StringIO
 # Set logger
 logger = logging.getLogger(__name__)
 
-def get_data_s3(sso_profile: str, bucket_name: str, file_key: str) -> typing.Any:
+def get_data_s3(bucket_name: str, file_key: str) -> typing.Any:
     """
     This function is used to retrieve a file from an AWS S3 bucket.
 
     Parameters:
-        profile (str): sso profile name to with which generate the boto3 session.  
         bucket_name (str): The name of the S3 bucket.
         file_key (str): The key of the file (i.e., the path to the file within the bucket).
 
@@ -28,7 +27,7 @@ def get_data_s3(sso_profile: str, bucket_name: str, file_key: str) -> typing.Any
     """
     # Create an S3 client using the default credentials chain
     try:
-        session = boto3.Session(profile_name = sso_profile)
+        session = boto3.Session()
         s3_client = session.client("s3")
     except botocore.exceptions.ClientError as err:
         logger.error("Error creating S3 client. The process can't continue downloading the" +
@@ -53,19 +52,18 @@ def get_data_s3(sso_profile: str, bucket_name: str, file_key: str) -> typing.Any
     return content
 
 
-def upload_csv_S3(data: pd.DataFrame, csv_key: str, sso_profile: str, bucket_name: str) -> None:
+def upload_csv_S3(data: pd.DataFrame, csv_key: str, bucket_name: str) -> None:
     """
     Upload a pandas DataFrame as a CSV file to the specified S3 bucket.
 
     Args:
         data: A pandas DataFrame to be uploaded.
         csv_key: The S3 object key (including file name) under which the data should be stored.
-        sso_profile: The AWS Single Sign-On (SSO) profile to use for the session.
         bucket_name: The name of the S3 bucket to upload the data to.
     """
     # Create an S3 client using the default credentials chain
     try:
-        session = boto3.Session(profile_name = sso_profile)
+        session = boto3.Session()
         s3_client = session.client("s3")
     except botocore.exceptions.ClientError as err:
         logger.error("Error creating S3 client. The process can't continue with the upload of " +

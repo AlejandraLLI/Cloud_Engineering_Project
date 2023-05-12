@@ -14,13 +14,12 @@ import sys
 # Set logger
 logger = logging.getLogger(__name__)
 
-def raw_data(sso_profile: str, bucket_name: str, file_key: str) -> pd.DataFrame:
+def raw_data(bucket_name: str, file_key: str) -> pd.DataFrame:
     """
     This function reads multiple csv files from a zip file stored in an AWS S3 bucket,
     concatenates them into a single DataFrame, and returns it.
 
     Parameters:
-        sso_profile (str): The AWS profile name.
         bucket_name (str): The name of the S3 bucket.
         file_key (str): The key of the zip file (i.e., its path within the bucket).
 
@@ -30,7 +29,7 @@ def raw_data(sso_profile: str, bucket_name: str, file_key: str) -> pd.DataFrame:
     # --- Read csv file directly from the zip ---
     
     # Download zip file from S3
-    source_file = aws.get_data_s3(sso_profile, bucket_name, file_key)
+    source_file = aws.get_data_s3(bucket_name, file_key)
 
     # Un zip and get list of files
     try:

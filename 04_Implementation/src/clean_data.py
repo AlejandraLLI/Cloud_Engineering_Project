@@ -102,13 +102,12 @@ def bucket_hours(time: str, hour_buckets: dict) -> str:
     return(bucket)
     
 
-def clean_data(sso_profile: str, bucket_name: str, raw_key: str, clean_config: dict) -> pd.DataFrame:
+def clean_data(bucket_name: str, raw_key: str, clean_config: dict) -> pd.DataFrame:
     """
     The function downloads a raw data file from an S3 bucket, cleans and transforms the data according to the provided configuration, 
     and returns a cleaned pandas DataFrame.
 
     Args:
-        sso_profile: AWS SSO profile name for boto3 session.
         bucket_name: AWS S3 bucket name to download data from.
         raw_key: Key of the raw data file in S3 bucket.
         clean_config (dict): Configuration for cleaning and transforming the data. Should have the following keys:
@@ -128,7 +127,7 @@ def clean_data(sso_profile: str, bucket_name: str, raw_key: str, clean_config: d
         A cleaned pandas DataFrame.
     """
     # Download raw csv file from S3 bucket
-    raw_data = aws.get_data_s3(sso_profile, bucket_name, raw_key)
+    raw_data = aws.get_data_s3(bucket_name, raw_key)
 
     # Read bytes object as string
     raw_data = raw_data.decode('utf-8')
