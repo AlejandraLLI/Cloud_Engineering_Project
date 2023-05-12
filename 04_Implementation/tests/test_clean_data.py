@@ -1,6 +1,6 @@
 import pytest
-import src.clean_data as cd
 import numpy as np
+import src.clean_data as cd
 
 # Happy path tests
 @pytest.mark.parametrize(
