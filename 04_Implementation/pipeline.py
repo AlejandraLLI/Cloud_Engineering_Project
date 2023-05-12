@@ -10,6 +10,7 @@ import src.aquire_data as ad
 import src.raw_data as rd
 import src.clean_data as cd
 import src.aws_utils as aws
+import src.train_model as tm
 
 # set up logger config for some file 
 logging.config.fileConfig("config/logging/local.conf")
@@ -69,8 +70,9 @@ if __name__ == "__main__":
     rd.save_dataset(train, artifacts / "train.csv")
     aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
     rd.save_dataset(test, artifacts / "test.csv")
-    tm.save_results(results, artifacts / "results.yaml")
-    tm.save_results(tmo, artifacts / "trained_models.yaml")
+    aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
+    #tm.save_results(results, artifacts / "results.yaml")
+    #tm.save_results(tmo, artifacts / "trained_models.yaml")
 
 
     # Production?
