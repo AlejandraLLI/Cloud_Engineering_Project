@@ -11,6 +11,7 @@ import src.raw_data as rd
 import src.clean_data as cd
 import src.aws_utils as aws
 import src.train_model as tm
+import src.generate_features as gf
 
 # set up logger config for some file 
 logging.config.fileConfig("config/logging/local.conf")
@@ -64,6 +65,9 @@ if __name__ == "__main__":
     rd.save_dataset(clean_data, artifacts / "clean_data.csv")
 
     # Generate features
+    features = gf.generate_features(clean_data, config["generate_features"])
+    rd.save_dataset(features, artifacts / "features.csv")
+    aws.upload_csv_S3(features, "features.csv", **config["aws_config"])
 
     # Train model and save artifacts: train/test set, results, trained models
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
