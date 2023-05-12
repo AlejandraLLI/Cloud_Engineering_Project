@@ -1,10 +1,9 @@
 # Libraries 
 import yaml
 from pathlib import Path
+import logging
 import numpy as np
 import pandas as pd
-
-
 from typing import Tuple
 
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -17,8 +16,10 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
 
+# Set logger
+logger = logging.getLogger(__name__)
 
-def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[dict, dict]:
+def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
     """
     Trains and evaluates models.
 
@@ -57,7 +58,11 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[dict, dict
         trained_models[name] = best_model
         results[name] = model_results
 
-    return results, trained_models
+    # Add target variable to training and test sets
+    train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
+    test: pd.DataFrame = pd.concat([X_test, y_test], axis=1)
+
+    return train, test, results, trained_models
 
 
 def define_preprocessor(config: dict) -> ColumnTransformer:
@@ -169,6 +174,12 @@ def save_results(results: dict, save_path: Path):
     Returns:
         None
     """
-    with open(save_path, 'w') as file:
-        yaml.dump(results, file)
+
+    try:
+        with open(save_path, 'w') as file:
+            yaml.dump(results, file)
+    except yaml.YAMLError:
+        logger.error("Error while saving results to %s", save_path)
+    else:
+        logger.info("Results saved to %s", save_path)
 
