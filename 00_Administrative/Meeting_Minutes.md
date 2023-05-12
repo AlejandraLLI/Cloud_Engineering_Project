@@ -3,6 +3,10 @@
 ## Meeting: May 11th, 2023
 
 ### Discussion
+- Updated raw_data and clean_data to read data from and upload to S3 bucket. Used profile_name option in boto3 session to handle different profiles but it is not needed if you export the profile name as environment variable in each session. 
+- Added tests for clean_data module. Tried to add git actions for tests but something not working. Need to ask Ashish. 
+- Modules for generating features and modelling are ready but need to add logging and testing and connection to S3 bucket. 
+- Revised first version of the web page for the API. Might be good idea not to include flight code and duration as inputs from the user. 
 
 ### Task for next week
 - Remove the profile_name option in aws functions (Ale)
