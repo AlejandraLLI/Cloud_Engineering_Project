@@ -69,14 +69,18 @@ if __name__ == "__main__":
     rd.save_dataset(features, artifacts / "features.csv")
     aws.upload_csv_S3(features, "features.csv", **config["aws_config"])
 
-    # Train model and save artifacts: train/test set, results, trained models
+    # Train and evalueate models, save artifacts
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
     rd.save_dataset(train, artifacts / "train.csv")
     aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
     rd.save_dataset(test, artifacts / "test.csv")
     aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
-    #tm.save_results(results, artifacts / "results.yaml")
-    #tm.save_results(tmo, artifacts / "trained_models.yaml")
+
+    # Save results and best model
+    tm.save_results(results, artifacts / "results.yaml")
+    aws.upload_yaml_S3(results, "results.yaml", **config["aws_config"])
+    tm.save_best_model(results, tmo, artifacts / "model.pkl")
+    aws.upload_pkl_S3(tmo, "model.pkl", **config["aws_config"])
 
 
     # Production?
