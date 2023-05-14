@@ -44,14 +44,16 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
     results: dict = {}
     trained_models: dict = {}
 
+    print(models)
+
     # Split data into training and test sets
     split_config = config.get('train_test_split', {})
     X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                                         test_size=split_config.get("test_size", 0.2),
                                                         random_state=split_config.get("random_state", 42))
 
-    for name, model in models.items():
-        best_model = train_model(preprocessor, model, X_train, y_train)
+    for name, model_info in models.items():
+        best_model = train_model(preprocessor, model_info['model'], model_info['grid'], X_train, y_train)
         y_pred = best_model.predict(X_test)
         model_results = calculate_metrics(y_test, y_pred)
 
@@ -110,19 +112,20 @@ def define_models(config: dict) -> dict:
     for model_name, model_info in config['models'].items():
         ModelClass = models_mapping[model_info['class']]
         model_instance = ModelClass(**model_info['parameters'])
-        models[model_name] = model_instance
+        grid_params = model_info.get('grid_search', None)
+        models[model_name] = {'model': model_instance, 'grid': grid_params}
 
     return models
 
 
-def train_model(preprocessor, model, X_train, y_train):
+def train_model(preprocessor, model, grid_params, X_train, y_train):
     """
     Trains a model with or without hyperparameter tuning.
 
     Args:
         preprocessor (sklearn ColumnTransformer): Preprocessor for the model.
         model (sklearn model): The model to train.
-        params (dict): Hyperparameters for the model.
+        grid_params (dict): Hyperparameters for the model.
         X_train (pandas.DataFrame): Training features.
         y_train (pandas.Series): Training target variable.
 
@@ -131,16 +134,13 @@ def train_model(preprocessor, model, X_train, y_train):
     """
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
 
-    #if params:
-     #   grid_search = GridSearchCV(pipeline, param_grid=params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
-      #  grid_search.fit(X_train, y_train)
-       # best_model = grid_search.best_estimator_
-    #else:
-        #best_model = pipeline
-        #best_model.fit(X_train, y_train)
-    best_model = pipeline
-    best_model.fit(X_train, y_train)
-
+    if grid_params:
+        grid_search = GridSearchCV(pipeline, param_grid=grid_params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        best_model = grid_search.best_estimator_
+    else:
+        best_model = pipeline
+        best_model.fit(X_train, y_train)
 
     return best_model
 
