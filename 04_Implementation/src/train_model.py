@@ -204,10 +204,21 @@ def save_best_model(results: dict, trained_models: dict, file_path: Path) -> Non
     
     # Find the name of the model with the highest R2 score
     best_model_name = max(results, key=lambda model: results[model]['R2'])
+
+    logger.info("Best model: %s", best_model_name)
     
     # Get the best model
     best_model = trained_models[best_model_name]
     
     # Save the best model as a pickle file
     with open(file_path, 'wb') as file:
-        pickle.dump(best_model, file)
+        try:
+            pickle.dump(best_model, file)
+        except pickle.PicklingError:
+            logger.error("Error while saving model to %s", file_path)
+        except FileNotFoundError:
+            logger.error("Error while saving model to %s", file_path)
+        except Exception as e:
+            logger.error("Error while saving model to %s", file_path)
+        else:
+            logger.info("Model saved to %s", file_path)

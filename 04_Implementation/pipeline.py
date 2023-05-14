@@ -56,27 +56,31 @@ if __name__ == "__main__":
 
     # Create raw data set from source, upload to S3 and save to csv
     raw_data = rd.raw_data(**{**config["aws_config"],**config["raw_data"]})
-    #aws.upload_csv_S3(raw_data, "raw_data.csv", **config["aws_config"])
+    aws.upload_csv_S3(raw_data, "raw_data.csv", **config["aws_config"])
     rd.save_dataset(raw_data, artifacts / "raw_data.csv")
 
     # Clean raw data and save to csv
     clean_data = cd.clean_data(**{**config["aws_config"], **config["clean_data"]})
-    #aws.upload_csv_S3(clean_data, "clean_data.csv", **config["aws_config"])
+    aws.upload_csv_S3(clean_data, "clean_data.csv", **config["aws_config"])
     rd.save_dataset(clean_data, artifacts / "clean_data.csv")
 
     # Generate features
     features = gf.generate_features(clean_data, config["generate_features"])
     rd.save_dataset(features, artifacts / "features.csv")
-    #aws.upload_csv_S3(features, "features.csv", **config["aws_config"])
+    aws.upload_csv_S3(features, "features.csv", **config["aws_config"])
 
-    # Train model and save artifacts: train/test set, results, trained models
+    # Train and evalueate models, save artifacts
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
     rd.save_dataset(train, artifacts / "train.csv")
-    #aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
+    aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
     rd.save_dataset(test, artifacts / "test.csv")
-    #aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
+    aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
+
+    # Save results and best model
     tm.save_results(results, artifacts / "results.yaml")
+    aws.upload_yaml_S3(results, "results.yaml", **config["aws_config"])
     tm.save_best_model(results, tmo, artifacts / "model.pkl")
+    aws.upload_pkl_S3(tmo, "model.pkl", **config["aws_config"])
 
 
     # Production?
