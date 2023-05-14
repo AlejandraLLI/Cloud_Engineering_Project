@@ -132,13 +132,23 @@ def train_model(preprocessor, model, grid_params, X_train, y_train):
     Returns:
         sklearn model: The trained model.
     """
+    # Define pipeline
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
 
     if grid_params:
+        # Add prefix to grid search parameters
+        grid_params = {f'model__{k}': v for k, v in grid_params.items()}
+
+        # Initialize grid search
         grid_search = GridSearchCV(pipeline, param_grid=grid_params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
+
+        # Fit grid search
         grid_search.fit(X_train, y_train)
+
+        # Get best model
         best_model = grid_search.best_estimator_
     else:
+        # Fit model without grid search
         best_model = pipeline
         best_model.fit(X_train, y_train)
 
