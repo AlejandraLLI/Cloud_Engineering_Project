@@ -76,7 +76,7 @@ if __name__ == "__main__":
     rd.save_dataset(test, artifacts / "test.csv")
     #aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
     tm.save_results(results, artifacts / "results.yaml")
-    tm.save_results(tmo, artifacts / "trained_models.yaml")
+    tm.save_best_model(tmo, artifacts / "model.pkl")
 
 
     # Production?

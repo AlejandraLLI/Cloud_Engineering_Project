@@ -5,6 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import Tuple
+import pickle
 
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
@@ -61,8 +62,6 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
     # Add target variable to training and test sets
     train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
     test: pd.DataFrame = pd.concat([X_test, y_test], axis=1)
-
-    print(trained_models)
 
     return train, test, results, trained_models
 
@@ -183,3 +182,16 @@ def save_results(results: dict, save_path: Path):
         logger.error("Error while saving results to %s", save_path)
     else:
         logger.info("Results saved to %s", save_path)
+
+
+def save_best_model(results: dict, trained_models: dict, file_path: Path):
+    
+    # Find the name of the model with the highest R2 score
+    best_model_name = max(results, key=lambda model: results[model]['R2'])
+    
+    # Get the best model
+    best_model = trained_models[best_model_name]
+    
+    # Save the best model as a pickle file
+    with open(file_path, 'wb') as file:
+        pickle.dump(best_model, file)
