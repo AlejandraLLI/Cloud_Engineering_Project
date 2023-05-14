@@ -44,16 +44,14 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
     results: dict = {}
     trained_models: dict = {}
 
-    print(models)
-
     # Split data into training and test sets
     split_config = config.get('train_test_split', {})
     X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                                         test_size=split_config.get("test_size", 0.2),
                                                         random_state=split_config.get("random_state", 42))
 
-    for name, model_info in models.items():
-        best_model = train_model(preprocessor, model_info['model'], model_info['grid'], X_train, y_train)
+    for name, model in models.items():
+        best_model = train_model(preprocessor, model, X_train, y_train)
         y_pred = best_model.predict(X_test)
         model_results = calculate_metrics(y_test, y_pred)
 
@@ -63,6 +61,8 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
     # Add target variable to training and test sets
     train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
     test: pd.DataFrame = pd.concat([X_test, y_test], axis=1)
+
+    print(trained_models)
 
     return train, test, results, trained_models
 
@@ -112,45 +112,36 @@ def define_models(config: dict) -> dict:
     for model_name, model_info in config['models'].items():
         ModelClass = models_mapping[model_info['class']]
         model_instance = ModelClass(**model_info['parameters'])
-        grid_params = model_info.get('grid_search', None)
-        models[model_name] = {'model': model_instance, 'grid': grid_params}
+        models[model_name] = model_instance
 
     return models
 
 
-def train_model(preprocessor, model, grid_params, X_train, y_train):
+def train_model(preprocessor, model, X_train, y_train):
     """
     Trains a model with or without hyperparameter tuning.
 
     Args:
         preprocessor (sklearn ColumnTransformer): Preprocessor for the model.
         model (sklearn model): The model to train.
-        grid_params (dict): Hyperparameters for the model.
+        params (dict): Hyperparameters for the model.
         X_train (pandas.DataFrame): Training features.
         y_train (pandas.Series): Training target variable.
 
     Returns:
         sklearn model: The trained model.
     """
-    # Define pipeline
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
 
-    if grid_params:
-        # Add prefix to grid search parameters
-        grid_params = {f'model__{k}': v for k, v in grid_params.items()}
-
-        # Initialize grid search
-        grid_search = GridSearchCV(pipeline, param_grid=grid_params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
-
-        # Fit grid search
-        grid_search.fit(X_train, y_train)
-
-        # Get best model
-        best_model = grid_search.best_estimator_
-    else:
-        # Fit model without grid search
-        best_model = pipeline
-        best_model.fit(X_train, y_train)
+    #if params:
+     #   grid_search = GridSearchCV(pipeline, param_grid=params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
+      #  grid_search.fit(X_train, y_train)
+       # best_model = grid_search.best_estimator_
+    #else:
+        #best_model = pipeline
+        #best_model.fit(X_train, y_train)
+    best_model = pipeline
+    best_model.fit(X_train, y_train)
 
     return best_model
 
@@ -192,4 +183,3 @@ def save_results(results: dict, save_path: Path):
         logger.error("Error while saving results to %s", save_path)
     else:
         logger.info("Results saved to %s", save_path)
-
