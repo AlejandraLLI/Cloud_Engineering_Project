@@ -50,6 +50,8 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
     X_train, X_test, y_train, y_test = train_test_split(X, y, 
                                                         test_size=split_config.get("test_size", 0.2),
                                                         random_state=split_config.get("random_state", 42))
+    
+    logger.debug("Data split into training and test sets with test size %s", split_config.get("test_size", 0.2))
 
     for name, model in models.items():
         best_model = train_model(preprocessor, model, X_train, y_train)
@@ -58,6 +60,7 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
 
         trained_models[name] = best_model
         results[name] = model_results
+        logger.debug("Model %s trained and evaluated", name)
 
     # Add target variable to training and test sets
     train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
@@ -83,6 +86,7 @@ def define_preprocessor(config: dict) -> ColumnTransformer:
         ('cat', OneHotEncoder(handle_unknown='ignore'), config.get('categorical_features', []))
     ])
 
+    logger.debug("Preprocessor defined")
     return preprocessor
 
 
@@ -113,6 +117,7 @@ def define_models(config: dict) -> dict:
         model_instance = ModelClass(**model_info['parameters'])
         models[model_name] = model_instance
 
+    logger.debug("Models defined")
     return models
 
 
@@ -184,7 +189,18 @@ def save_results(results: dict, save_path: Path):
         logger.info("Results saved to %s", save_path)
 
 
-def save_best_model(results: dict, trained_models: dict, file_path: Path):
+def save_best_model(results: dict, trained_models: dict, file_path: Path) -> None:
+    """
+    Saves the best model to a pickle file.
+
+    Args:
+        results (dict): Evaluation results.
+        trained_models (dict): Dictionary of trained model instances.
+        file_path (Path): Path to save the model.
+
+    Returns:
+        None
+    """
     
     # Find the name of the model with the highest R2 score
     best_model_name = max(results, key=lambda model: results[model]['R2'])

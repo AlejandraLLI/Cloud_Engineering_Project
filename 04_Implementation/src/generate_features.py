@@ -45,8 +45,6 @@ def generate_features(clean_data: pd.DataFrame, feature_config: dict) -> pd.Data
     else:
         logger.debug("Log transformed columns: %s", feature_config.get('log_transform', []))
 
-    logger.info("Features were generated successfully")
-
     return features
 
 
