@@ -1,0 +1,20 @@
+# Base image
+FROM python:3.9-slim
+
+# Create working directory in container
+WORKDIR /app
+
+# Copy requirements file to wd
+COPY requirements_tests.txt .
+
+# Install libraries
+RUN pip install -r requirements_tests.txt
+
+# Copy folders & files to run pipeline: config, src, pipeline.py
+COPY src/clean_data.py ./src/clean_data.py
+COPY src/generate_features.py ./src/generate_features.py
+COPY src/aws_utils.py ./src/aws_utils.py
+COPY tests ./tests
+
+# Command to run when running docker container
+CMD ["pytest"]
