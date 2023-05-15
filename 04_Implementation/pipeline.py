@@ -6,7 +6,7 @@ from pathlib import Path
 import yaml
 
 # Self-built modules
-import src.aquire_data as ad
+#import src.aquire_data as ad
 import src.raw_data as rd
 import src.clean_data as cd
 import src.aws_utils as aws
@@ -66,24 +66,21 @@ if __name__ == "__main__":
 
     # Generate features
     features = gf.generate_features(clean_data, config["generate_features"])
-    rd.save_dataset(features, artifacts / "features.csv")
     aws.upload_csv_S3(features, "features.csv", **config["aws_config"])
+    rd.save_dataset(features, artifacts / "features.csv")
 
     # Train and evalueate models, save artifacts
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
-    rd.save_dataset(train, artifacts / "train.csv")
     aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
-    rd.save_dataset(test, artifacts / "test.csv")
+    rd.save_dataset(train, artifacts / "train.csv")
     aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
+    rd.save_dataset(test, artifacts / "test.csv")
 
     # Save results and best model
-    tm.save_results(results, artifacts / "results.yaml")
     aws.upload_yaml_S3(results, "results.yaml", **config["aws_config"])
-    tm.save_best_model(results, tmo, artifacts / "model.pkl")
     aws.upload_pkl_S3(tmo, "model.pkl", **config["aws_config"])
-
-
-    # Production?
+    tm.save_results(results, artifacts / "results.yaml")
+    tm.save_best_model(results, tmo, artifacts / "model.pkl")
 
     # Upload all artifacts to S3
     #aws_config = config.get("aws")
