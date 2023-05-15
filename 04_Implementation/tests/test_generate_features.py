@@ -21,7 +21,7 @@ def test_log_transform(sample_df):
     assert result['B'].equals(sample_df['B'].apply(np.log)), "Happy test failed for column B"
     
     # Unhappy test
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         gf.log_transform(sample_df.copy(), ['C'])
 
 
