@@ -1,15 +1,17 @@
 import streamlit as st
 st.set_page_config(layout="wide")
 from PIL import Image
+from aggregate_data import get_flight_number, get_avg_duration, get_arrival
 import requests
 import json
+import pandas as pd
 
 # -------TITLE----------
 st.markdown("""<h1 style='text-align: center; color: white;'>
             How much do I need to pay for the flight?</h1>""",
             unsafe_allow_html=True)
 with st.columns(3)[1]:
-    image = Image.open("04_Implementation/model_endpoint/plane.jpg")
+    image = Image.open("plane.jpg")
     st.image(image)
 
 # -------INPUTS--------
@@ -19,11 +21,6 @@ airline = st.selectbox(
     "What's the airline?",
     ("Air India", "AirAsia", "GO FIRST", "Indigo",
      "Spicejet", "StarAir", "Trujet", "Vistra")
-)
-
-# flight number
-flight_number = st.text_input(
-    "What's your flight number?"
 )
 
 # seat type
@@ -42,12 +39,6 @@ departure_time = st.selectbox(
     ("Early_Morning", "Morning", "Afternoon",
      "Evening", "Night", "Late_Night")
 )
-arrival_time = st.selectbox(
-    "What time do you arrive?",
-    ("Early_Morning", "Morning", "Afternoon",
-     "Evening", "Night", "Late_Night"),
-    index=1
-)
 
 # origin and destination
 origin = st.selectbox(
@@ -60,11 +51,6 @@ destination = st.selectbox(
     ("Bangalore", "Chennai", "Delhi",
      "Hyderabad", "Kolkata", "Mumbai"),
     index=1
-)
-
-# flight duration
-duration = st.text_input(
-    "How long is your flight in hours?"
 )
 
 # number of stops
@@ -83,19 +69,12 @@ with col3:
 # --------VALIDATE INPUT------------
 def validate_input():
     warnings = []
-    # TODO: validate flight number
     # seat
     if "seat" not in st.session_state:
         warnings.append("Please select a seat type.")
     # origin and destination should be different
     if origin == destination:
         warnings.append("Origin and destination cities must be different.")
-    # duration must exist
-    if duration == "":
-        warnings.append("Please specify the duration of your flight.")
-    # duration must be positive
-    elif float(duration) <= 0:
-        warnings.append("Duration of you flight must be a positive number.")
     # stop
     if "stop" not in st.session_state:
         warnings.append("Please specify how many stops is your travel.")
@@ -109,36 +88,44 @@ def validate_input():
 
 # --------PREDICTION-------------
 
+# read data to interpolate some inputs
+df = pd.read_csv("../../02_Data/clean_data.csv")
+
 def predict():
-    
     # validate input before making prediction
     if validate_input():
         url = "http://127.0.0.1:5000/predict"
         
-        input_data = {
-            'airline': airline,
-            'flight': flight_number,
-            'class': st.session_state["seat"],
-            'departure_time': departure_time,
-            'origin': origin,
-            'duration': duration,
-            'stops': st.session_state["stop"],
-            'arrival_time': arrival_time,
-            'destination': destination
-        }
+        arrival_time = get_arrival(df, airline, origin, destination, departure_time)
+        duration = get_avg_duration(df, airline, origin, destination)
+        flight_numbers = get_flight_number(df, airline)
+        
         try:
-            response = requests.post(url, json=input_data)
-            response.raise_for_status()  # Check if the request was successful
-            try:
-                predicted_price = json.loads(response.text)['prediction']
-            except json.JSONDecodeError:
-                st.error("Error: Invalid JSON response received.")
-                st.error("Response text:", response.text)
-            except KeyError:
-                st.error("Error: 'prediction' key not found in the JSON response.")
-                st.error("Response text:", response.text)
-            else:
-                st.success(f"Predicted Price: {round(predicted_price, 2)} Rupees")
+            prices = []
+            for flight_number in flight_numbers:
+                input_data = {
+                    'airline': airline,
+                    'flight': flight_number,
+                    'class': st.session_state["seat"],
+                    'departure_time': departure_time,
+                    'origin': origin,
+                    'duration': duration,
+                    'stops': st.session_state["stop"],
+                    'arrival_time': arrival_time,
+                    'destination': destination
+                }
+                response = requests.post(url, json=input_data)
+                response.raise_for_status()  # Check if the request was successful
+                try:
+                    prices.append(float(json.loads(response.text)['prediction']))
+                except json.JSONDecodeError:
+                    st.error("Error: Invalid JSON response received.")
+                    st.error("Response text:", response.text)
+                except KeyError:
+                    st.error("Error: 'prediction' key not found in the JSON response.")
+                    st.error("Response text:", response.text)
+            predicted_price = sum(prices) / len(prices)
+            st.success(f"Predicted Price: {round(predicted_price, 2)} Rupees")
         except requests.exceptions.RequestException as e:
             st.error("Error: Request failed.")
             raise e
