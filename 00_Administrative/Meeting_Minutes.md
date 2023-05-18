@@ -1,5 +1,22 @@
 # Cloud Engineering Meeting Minutes
 
+## Meeting: May 18th, 2023
+
+### Discussion
+- Discussed on how we should upload artifacts to the S3 bucket.
+- Containers for pipeline and tests are ready.
+- Need to improve on the tests and API.
+
+### Task for next week
+- Fix AWS readings from previous step artifact (Ale). 
+- Include more tests for feature generation (Ruben)
+- Save more models (Ruben)
+- Add drop down for model prediction in API (Boss)
+- Add more models to endpoint (Sam)
+- Start drafting presentation 
+- Try to deploy API in AWS (Anyone available)
+
+
 ## Meeting: May 11th, 2023
 
 ### Discussion
