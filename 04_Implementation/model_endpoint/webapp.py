@@ -91,6 +91,16 @@ def validate_input():
 # read data to interpolate some inputs
 df = pd.read_csv("../../02_Data/clean_data.csv")
 
+# model type
+model_type = st.sidebar.selectbox("Which model do you want to use?",
+                                 ("XGBoost", "Random Forest", "Linear Regression"))
+
+model_dict = {
+    "XGBoost": "xgboost",
+    "Random Forest": "random_forest",
+    "Linear Regression": "linear"
+}
+
 def predict():
     # validate input before making prediction
     if validate_input():
@@ -104,6 +114,7 @@ def predict():
             prices = []
             for flight_number in flight_numbers:
                 input_data = {
+                    "Data": {
                     'airline': airline,
                     'flight': flight_number,
                     'class': st.session_state["seat"],
@@ -113,7 +124,8 @@ def predict():
                     'stops': st.session_state["stop"],
                     'arrival_time': arrival_time,
                     'destination': destination
-                }
+                    }, "Model": model_dict[model_type]
+                    }
                 response = requests.post(url, json=input_data)
                 response.raise_for_status()  # Check if the request was successful
                 try:
