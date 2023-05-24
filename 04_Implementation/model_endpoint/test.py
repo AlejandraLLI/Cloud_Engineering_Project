@@ -6,15 +6,19 @@ url = "http://127.0.0.1:5000/predict"
 
 # Define sample input data
 input_data = {
-    'airline': 'Vistara',
-    'flight': 'UK-836',
-    'class': 'Business',
-    'departure_time': 'Morning',
-    'origin': 'Chennai',
-    'duration': 6.25,
-    'stops': 1,
-    'arrival_time': 'Evening',
-    'destination': 'Bangalore'
+    "Data": {
+        "airline": "Vistara",
+        "flight": "UK-836",
+        "class": "Business",
+        "departure_time": "Morning",
+        "origin": "Chennai",
+        "duration": 6.25,
+        "stops": 1,
+        "arrival_time": "Evening",
+        "destination": "Bangalore"
+    },
+    
+    "Model": "random_forest"
 }
 
 try:

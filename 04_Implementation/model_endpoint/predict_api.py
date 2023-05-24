@@ -1,45 +1,58 @@
-# Import libraries
+# Import necessary libraries
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from xgboost import XGBRegressor
-from flask import Flask, request, jsonify
-import json
+import logging
 import joblib
+from flask import Flask, request, jsonify
 
 # Create a Flask app instance
 app = Flask(__name__)
 
-# Load the trained XGBoost model
-model_path = 'xgboost_model.pkl'
+# Set up logging configuration
+logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
-# Load the model
-model = joblib.load(model_path)
-
-# Load preprocessor
-preprocessor_path = 'preprocessor.pkl'
-preprocessor = joblib.load(preprocessor_path)
-
-# Flask App
-
-# Define the API endpoint and request method
 @app.route('/predict', methods=['POST'])
 def predict():
-    # Get JSON data
-    data = request.get_json()
-
-    # Convert JSON data to DataFrame
-    X = pd.DataFrame(data, index=[0])
-
+    """Endpoint for making predictions using a trained model"""
     try:
-        # Manually apply preprocessing steps
-        preprocessor = model.named_steps['preprocessor']
-        estimator = model.named_steps['model']
+        # Retrieve JSON data from the request
+        data = request.get_json()
+        logging.debug('Received JSON data: %s', data)
+
+        # Verify that 'Data' and 'Model' keys are present in the request data
+        if 'Data' not in data or 'Model' not in data:
+            return jsonify({'error': 'Data and Model keys are required in the request body'}), 400
+
+        # Retrieve model name from data
+        model_name = data['Model']
+        logging.debug('Model name: %s', model_name)
+
+        # Load model based on provided model name
+        try:
+            model = joblib.load(f'{model_name}_model.pkl')
+            preprocessor = model.named_steps['preprocessor']
+            estimator = model.named_steps['model']
+            logging.debug('Model and preprocessor loaded successfully.')
+        except FileNotFoundError:
+            return jsonify({'error': f'Model not found: {model_name}'}), 400
+
+        # Convert JSON data into a pandas DataFrame
+        X = pd.DataFrame(data['Data'], index=[0])
+        logging.debug('Converted JSON data to DataFrame.')
+
+        # Apply preprocessor to input data
         X_processed = preprocessor.transform(X)
-        
-        # Predict using the estimator
-        prediction = estimator.predict(X_processed)
+        logging.debug('Preprocessing applied successfully.')
+
+        try:
+            # Make a prediction using the trained model
+            prediction = estimator.predict(X_processed)
+            logging.debug('Prediction made successfully.')
+        except Exception as e:
+            logging.exception("Error occurred during prediction!")
+            return jsonify({'error': 'Error during prediction: {}'.format(e)}), 500
+
+        # Create a response containing the prediction
         response = {
             'prediction': float(np.exp(prediction[0]))  # Revert the log transformation and convert to float
         }
@@ -47,8 +60,9 @@ def predict():
         return jsonify(response)
 
     except Exception as e:
+        logging.exception("Error occurred in prediction!")
         return jsonify({'error': str(e)}), 500
 
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=False)
