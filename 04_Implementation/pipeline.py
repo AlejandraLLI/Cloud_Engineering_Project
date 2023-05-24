@@ -51,41 +51,32 @@ if __name__ == "__main__":
     with (artifacts / "config.yaml").open("w") as f:
         yaml.dump(config, f)
     
-    # Acquire source data from Kaggel repository, create raw data and save to disk
-    #ad.acquire_data(run_config["data_source"], artifacts / "source_data.zip")
-
     # Create raw data set from source, upload to S3 and save to csv
-    raw_data = rd.raw_data(**{**config["aws_config"],**config["raw_data"]})
-    aws.upload_csv_S3(raw_data, "raw_data.csv", **config["aws_config"])
+    print(config["aws_config"]["bucket_name"])
+    raw_data = rd.raw_data(config["aws_config"]["bucket_name"],**config["raw_data"])
     rd.save_dataset(raw_data, artifacts / "raw_data.csv")
 
     # Clean raw data and save to csv
-    clean_data = cd.clean_data(**{**config["aws_config"], **config["clean_data"]})
-    aws.upload_csv_S3(clean_data, "clean_data.csv", **config["aws_config"])
+    clean_data = cd.clean_data(raw_data, **config["clean_data"])
     rd.save_dataset(clean_data, artifacts / "clean_data.csv")
 
     # Generate features
     features = gf.generate_features(clean_data, config["generate_features"])
-    aws.upload_csv_S3(features, "features.csv", **config["aws_config"])
     rd.save_dataset(features, artifacts / "features.csv")
 
     # Train and evalueate models, save artifacts
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
-    aws.upload_csv_S3(train, "train.csv", **config["aws_config"])
     rd.save_dataset(train, artifacts / "train.csv")
-    aws.upload_csv_S3(test, "test.csv", **config["aws_config"])
     rd.save_dataset(test, artifacts / "test.csv")
 
     # Save results and best model
-    aws.upload_yaml_S3(results, "results.yaml", **config["aws_config"])
-    aws.upload_pkl_S3(tmo, "model.pkl", **config["aws_config"])
     tm.save_results(results, artifacts / "results.yaml")
     tm.save_best_model(results, tmo, artifacts / "model.pkl")
 
     # Upload all artifacts to S3
-    #aws_config = config.get("aws")
-    #if aws_config.get("upload", False):
-    #    uris = aws.upload_artifacts(artifacts, aws_config)
-    #    aws.write_list_files(uris, artifacts/"list_s3_uris.txt")
-    #else: 
-    #    logger.info("Option to upload artifacts to S3 bucket set to false. No artifacts will be uploaded.")
+    aws_config = config.get("aws_config")
+    if aws_config.get("upload", False):
+        uris = aws.upload_artifacts(artifacts, aws_config)
+        aws.write_list_files(uris, artifacts/"list_s3_uris.txt")
+    else: 
+        logger.info("Option to upload artifacts to S3 bucket set to false. No artifacts will be uploaded.")
