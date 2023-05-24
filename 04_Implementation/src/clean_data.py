@@ -102,14 +102,13 @@ def bucket_hours(time: str, hour_buckets: dict) -> str:
     return(bucket)
     
 
-def clean_data(bucket_name: str, raw_key: str, clean_config: dict) -> pd.DataFrame:
+def clean_data(raw_data: pd.DataFrame, clean_config: dict) -> pd.DataFrame:
     """
     The function downloads a raw data file from an S3 bucket, cleans and transforms the data according to the provided configuration, 
     and returns a cleaned pandas DataFrame.
 
     Args:
-        bucket_name: AWS S3 bucket name to download data from.
-        raw_key: Key of the raw data file in S3 bucket.
+        raw_data (pd.DataFrame): A pandas dataframe with the raw data to be cleaned  
         clean_config (dict): Configuration for cleaning and transforming the data. Should have the following keys:
             - "rename_cols": A dictionary mapping old column names to new ones.
             - "concat_cols": A dictionary specifying pairs of columns to concatenate.
@@ -126,19 +125,6 @@ def clean_data(bucket_name: str, raw_key: str, clean_config: dict) -> pd.DataFra
     Returns:
         A cleaned pandas DataFrame.
     """
-    # Download raw csv file from S3 bucket
-    raw_data = aws.get_data_s3(bucket_name, raw_key)
-
-    # Read bytes object as string
-    raw_data = raw_data.decode('utf-8')
-
-    # Convert csv string as pandas dataframe.
-    raw_data = pd.read_csv(io.StringIO(raw_data))
-
-    # Output debug info 
-    logger.debug("Raw_data type: %s", type(raw_data))
-    logger.debug("Raw_data shape: %s", raw_data.shape)
-
     # Create clean dataframe
     df_clean = raw_data.copy()
 
