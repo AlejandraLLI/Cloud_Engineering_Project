@@ -180,7 +180,7 @@ def save_results(results: dict, save_path: Path):
     else:
         logger.info("Results saved to %s", save_path)
 
-
+# Not being used right now, but could be useful in the future
 def save_best_model(results: dict, trained_models: dict, file_path: Path) -> None:
     """
     Saves the best model to a pickle file.
@@ -214,3 +214,37 @@ def save_best_model(results: dict, trained_models: dict, file_path: Path) -> Non
             logger.error("Error while saving model to %s", file_path)
         else:
             logger.info("Model saved to %s", file_path)
+
+
+def save_all_models(trained_models: dict, file_path: Path) -> None:
+    """
+    Saves all trained models to individual pickle files.
+
+    Args:
+        trained_models (dict): Dictionary of trained model instances.
+        file_path (Path): Directory path to save the models.
+
+    Returns:
+        None
+    """
+    
+    # Iterate over all models
+    for model_name, model in trained_models.items():
+
+        # Define specific path for each model
+        specific_file_path = file_path / f"{model_name}.pkl"
+        
+        logger.info("Saving model: %s", model_name)
+        
+        # Save the model as a pickle file
+        with open(specific_file_path, 'wb') as file:
+            try:
+                pickle.dump(model, file)
+            except pickle.PicklingError:
+                logger.error("Error while saving model to %s", specific_file_path)
+            except FileNotFoundError:
+                logger.error("Error while saving model to %s", specific_file_path)
+            except Exception as e:
+                logger.error("Error while saving model to %s", specific_file_path)
+            else:
+                logger.info("Model saved to %s", specific_file_path)
