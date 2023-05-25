@@ -1,5 +1,22 @@
 # Cloud Engineering Meeting Minutes
 
+## Meeting: May 25th, 2023
+
+### Discussion
+- API is updated to final version
+- The pipeline currently just stores the best model. We need to change the pipeline so that it saves the 3 models to s3 directly. 
+- There is a draft for the ppt. Need to get images of the architecture and cost. 
+- Saturday: 
+	- Meet at 9:30 am
+	- Need to figure out how to deploy. Maybe split in two teams: pipeline & API. 
+	- Finish the ppt 
+
+### Task for Saturday 27th, 2023
+- Save the 3 models to S3 bucket (Ruben)
+- Make sure containers work with changes(Ale)
+- Keep drafting ppt (ALL)
+- Review project requirements (ALL)
+
 ## Meeting: May 18th, 2023
 
 ### Discussion
