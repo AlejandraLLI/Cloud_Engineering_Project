@@ -65,13 +65,13 @@ if __name__ == "__main__":
     rd.save_dataset(features, artifacts / "features.csv")
 
     # Train and evaluate models, save artifacts
-    train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
+    train, test, results, tmo_dict = tm.train_and_evaluate(features, config["train_model"])
     rd.save_dataset(train, artifacts / "train.csv")
     rd.save_dataset(test, artifacts / "test.csv")
 
     # Save results and best model
     tm.save_results(results, artifacts / "results.yaml")
-    tm.save_best_model(results, tmo, artifacts / "model.pkl")
+    tm.save_all_models(tmo_dict, artifacts)
 
     # Upload all artifacts to S3
     aws_config = config.get("aws_config")
