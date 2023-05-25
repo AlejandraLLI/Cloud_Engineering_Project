@@ -8,7 +8,7 @@ run_config:
   output: artifacts
 
 aws_config:
-  upload: True
+  upload: False
   bucket_name: msia423-g7
   prefix: experiments2
 
@@ -98,20 +98,20 @@ train_model:
     test_size: 0.2
     random_state: 423
   models:
-    Linear Regression:
+    linear_regression:
       class: LinearRegression
       parameters: {}
-    Random Forest:
+    random_forest:
       class: RandomForestRegressor
       parameters:
         random_state: 423
         n_estimators: 200
         max_depth: 10
-        min_samples_split: 2
-    XGBoost:
+        min_samples_split: 10
+    xgboost:
       class: XGBRegressor
       parameters:
         random_state: 423
-        n_estimators: 200
+        n_estimators: 400
         max_depth: 10
         learning_rate: 0.1
