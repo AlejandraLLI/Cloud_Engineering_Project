@@ -7,7 +7,7 @@ import pandas as pd
 from typing import Tuple
 import pickle
 
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
@@ -60,7 +60,7 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
 
         trained_models[name] = best_model
         results[name] = model_results
-        logger.debug("Model %s trained and evaluated", name)
+        logger.info("Model %s trained and evaluated", name)
 
     # Add target variable to training and test sets
     train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
@@ -136,14 +136,6 @@ def train_model(preprocessor, model, X_train, y_train):
         sklearn model: The trained model.
     """
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
-
-    #if params:
-     #   grid_search = GridSearchCV(pipeline, param_grid=params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
-      #  grid_search.fit(X_train, y_train)
-       # best_model = grid_search.best_estimator_
-    #else:
-        #best_model = pipeline
-        #best_model.fit(X_train, y_train)
     best_model = pipeline
     best_model.fit(X_train, y_train)
 

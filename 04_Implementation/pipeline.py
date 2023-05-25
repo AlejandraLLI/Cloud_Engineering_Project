@@ -64,7 +64,7 @@ if __name__ == "__main__":
     features = gf.generate_features(clean_data, config["generate_features"])
     rd.save_dataset(features, artifacts / "features.csv")
 
-    # Train and evalueate models, save artifacts
+    # Train and evaluate models, save artifacts
     train, test, results, tmo = tm.train_and_evaluate(features, config["train_model"])
     rd.save_dataset(train, artifacts / "train.csv")
     rd.save_dataset(test, artifacts / "test.csv")
