@@ -45,6 +45,8 @@ def generate_features(clean_data: pd.DataFrame, feature_config: dict) -> pd.Data
     else:
         logger.debug("Log transformed columns: %s", feature_config.get('log_transform', []))
 
+    logger.info("Generated features from cleaned data set")
+
     return features
 
 
@@ -54,10 +56,18 @@ def drop_columns(data: pd.DataFrame, columns: list) -> pd.DataFrame:
 
 def filter_airlines(data: pd.DataFrame, min_flights: int) -> pd.DataFrame:
     """Drop airlines with less than 'min_flights' flights."""
-    return data.groupby('airline').filter(lambda x: len(x) > min_flights)
+    try:
+        df = data.groupby('airline').filter(lambda x: len(x) > min_flights)
+    except TypeError:
+        logger.error("The 'min_flights' argument must be an integer")
+        raise
+    else:
+        return df
 
 def log_transform(data: pd.DataFrame, columns: list) -> pd.DataFrame:
     """Apply log transformation to specified columns."""
+
     for column in columns:
         data[column] = np.log(data[column])
+
     return data

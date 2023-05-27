@@ -7,7 +7,7 @@ import pandas as pd
 from typing import Tuple
 import pickle
 
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
@@ -60,7 +60,7 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
 
         trained_models[name] = best_model
         results[name] = model_results
-        logger.debug("Model %s trained and evaluated", name)
+        logger.info("Model %s trained and evaluated", name)
 
     # Add target variable to training and test sets
     train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
@@ -136,14 +136,6 @@ def train_model(preprocessor, model, X_train, y_train):
         sklearn model: The trained model.
     """
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
-
-    #if params:
-     #   grid_search = GridSearchCV(pipeline, param_grid=params, scoring='neg_mean_squared_error', cv=3, n_jobs=-1)
-      #  grid_search.fit(X_train, y_train)
-       # best_model = grid_search.best_estimator_
-    #else:
-        #best_model = pipeline
-        #best_model.fit(X_train, y_train)
     best_model = pipeline
     best_model.fit(X_train, y_train)
 
@@ -188,7 +180,7 @@ def save_results(results: dict, save_path: Path):
     else:
         logger.info("Results saved to %s", save_path)
 
-
+# Not being used right now, but could be useful in the future
 def save_best_model(results: dict, trained_models: dict, file_path: Path) -> None:
     """
     Saves the best model to a pickle file.
@@ -222,3 +214,37 @@ def save_best_model(results: dict, trained_models: dict, file_path: Path) -> Non
             logger.error("Error while saving model to %s", file_path)
         else:
             logger.info("Model saved to %s", file_path)
+
+
+def save_all_models(trained_models: dict, file_path: Path) -> None:
+    """
+    Saves all trained models to individual pickle files.
+
+    Args:
+        trained_models (dict): Dictionary of trained model instances.
+        file_path (Path): Directory path to save the models.
+
+    Returns:
+        None
+    """
+    
+    # Iterate over all models
+    for model_name, model in trained_models.items():
+
+        # Define specific path for each model
+        specific_file_path = file_path / f"{model_name}.pkl"
+        
+        logger.info("Saving model: %s", model_name)
+        
+        # Save the model as a pickle file
+        with open(specific_file_path, 'wb') as file:
+            try:
+                pickle.dump(model, file)
+            except pickle.PicklingError:
+                logger.error("Error while saving model to %s", specific_file_path)
+            except FileNotFoundError:
+                logger.error("Error while saving model to %s", specific_file_path)
+            except Exception as e:
+                logger.error("Error while saving model to %s", specific_file_path)
+            else:
+                logger.info("Model saved to %s", specific_file_path)
