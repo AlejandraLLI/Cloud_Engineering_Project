@@ -3,15 +3,12 @@ This module provides functions for uploading the generated artifacts to an S3 bu
 If allowed by the user, the process will create the S3 bucket if it doesn't exist.  
 """
 import logging
-from pathlib import Path
-import yaml
-import pickle
 import typing
+from pathlib import Path
+
 import boto3
 import botocore
 import sys
-import pandas as pd
-from io import StringIO
 
 # Set logger
 logger = logging.getLogger(__name__)
@@ -35,9 +32,9 @@ def get_data_s3(bucket_name: str, file_key: str) -> typing.Any:
         logger.error("Error creating S3 client. The process can't continue downloading the" +
                      "file from S3 bucket. Error: ", err)
         sys.exit(1)
-    else: 
+    else:
         logger.info("Connection to AWS S3 session successful.")
-    
+
     # Get object from S3
     try:
         obj = s3_client.get_object(Bucket = bucket_name, Key = file_key)
@@ -49,7 +46,7 @@ def get_data_s3(bucket_name: str, file_key: str) -> typing.Any:
         # Read object
         content = obj["Body"].read()
         logger.info("File %s recovered from S3 bucket %s", file_key, bucket_name)
-        
+
     # Function output
     return content
 
@@ -81,7 +78,7 @@ def upload_artifacts(artifacts: Path, aws_config: dict) -> typing.List[str]:
     bucket_name = aws_config["bucket_name"]
     list_buckets = [bucket["Name"] for bucket in s3_client.list_buckets()["Buckets"]]
 
-    # If bucket doesn't exist log error and return no files. 
+    # If bucket doesn't exist log error and return no files.
     if bucket_name not in list_buckets:
         logger.error("S3 bucket %s does not exist. Create the corresponding bucket on your AWS " +
                     "account before running the project.", bucket_name)
@@ -155,4 +152,3 @@ def write_list_files(s3_uris: list[str], save_path: Path) -> None:
     except Exception as err:
         logger.warning("An error occurred when saving to file %s. The process will continue " +
                        "without saving the list of URI's. Error: %s", save_path, err)
-
