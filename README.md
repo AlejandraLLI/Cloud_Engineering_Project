@@ -71,21 +71,21 @@ To be able to run this project, you first need to clone this repo as follows:
     ```bash
     git clone git@github.com:AlejandraLLI/Cloud_Engineering_Project.git
     ```
-3. Navigate into the cloned repository and into the 04_Implementation folder: 
+3. Navigate into the cloned repository and into the 04_Implementation/pipeline folder: 
 
     ```bash
-    cd Cloud_Engineering_Project/04_Implementation
+    cd Cloud_Engineering_Project/04_Implementation/pipeline
     ```
 
 <br/><div id='id-RunLocal'/>
 
 ## Running locally 
 
-Once the repo has been cloned and you are inside the project folder, the complete pipeline can be run locally executing the following steps with a version of python >=3.9:
+Once the repo has been cloned and you are inside the project pipeline folder, the complete pipeline can be run locally executing the following steps with a version of python >=3.9:
 
 1. Make any changes to the `config/default-config.yaml` file and save the file. 
 
-2. On the terminal, run the following commands:
+2. On the terminal, run the following commands to run the pipeline:
 
     ```bash
     # Create a python environment
@@ -99,6 +99,24 @@ Once the repo has been cloned and you are inside the project folder, the complet
 
     # Run the complete pipeline 
     python pipeline.py
+     ```
+
+3. On the terminal, run the following commands to run the tests:
+    ```bash
+    # Deactivate previous environment 
+    deactivate
+
+    # Go to the tests folder
+    cd tests
+
+    # Create a python environment
+    python -m venv .venvtests
+
+    #Activate environment
+    source .venvtests/bin/activate
+
+    # Install required packages
+    pip install -r ../requirements_tests.txt
 
     # Run tests 
     pytest
@@ -116,7 +134,7 @@ The following instructions detail how to build and run each of the containers. M
 
 ```bash
 # Build docker image for pipeline
-docker build -t clouds-pipeline -f dockerfiles/Dockerfile.main .
+docker build -t airlines-pipeline -f dockerfiles/Dockerfile.pipeline_main .
 ```
 
 ### Run the entire model pipeline
@@ -131,27 +149,27 @@ aws sso login --profile <sso_profile_name_here>
 aws sts get-caller-identity --profile <sso_profile_name_here>
 
 # Run docker image passing your sso configuration 
-docker run -v ~/.aws:/root/.aws -e AWS_PROFILE=<sso_profile_name_here> airline-pipeline
+docker run -v ~/.aws:/root/.aws -e AWS_PROFILE=<sso_profile_name_here> airlines-pipeline
 ```
 
 Note: The artifacts generated in the pipeline are "written to disk" inside the container. If you wish to have a copy of the artifacts in your local machine you need to mount the artifacts volume to the container. This can be run by replacing the last command with the following: 
 
 ```bash
-docker run -v ~/.aws:/root/.aws -v "$(pwd)"/artifacts/:/app/artifacts/ -e AWS_PROFILE=<sso_profile_name_here> airline-pipeline
+docker run -v ~/.aws:/root/.aws -v "$(pwd)"/artifacts/:/app/artifacts/ -e AWS_PROFILE=<sso_profile_name_here> airlines-pipeline
 ``` 
 
 ### Build the docker image for tests
 
 ```bash
 # Build docker image for test
-docker build -t airline-tests -f dockerfiles/Dockerfile.tests . 
+docker build -t airlines-tests -f dockerfiles/Dockerfile.tests . 
 ```
 
 ### Run the tests
 
 ```bash
 # Run docker image for tests
-docker run airline-tests
+docker run airlines-tests
 ```
 
 <br/><div id='id-Implementation'/>
