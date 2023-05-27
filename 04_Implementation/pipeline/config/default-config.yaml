@@ -8,9 +8,9 @@ run_config:
   output: artifacts
 
 aws_config:
-  upload: False
+  upload: True
   bucket_name: msia423-g7
-  prefix: experiments2
+  prefix: experiments
 
 raw_data:
   file_key: source_data.zip
