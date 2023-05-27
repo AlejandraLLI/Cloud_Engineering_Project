@@ -1,3 +1,6 @@
+"""
+This module provides functions for training and evaluating models.
+"""
 # Libraries
 from pathlib import Path
 import logging
@@ -55,7 +58,7 @@ def train_and_evaluate(
                                 test_size=split_config.get("test_size", 0.2),
                                 random_state=split_config.get("random_state", 42))
 
-    logger.debug("Data split into training and test sets with test size %s", 
+    logger.debug("Data split into training and test sets with test size %s",
                  split_config.get("test_size", 0.2))
 
     for name, model in models.items():
