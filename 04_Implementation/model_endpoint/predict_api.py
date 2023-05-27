@@ -3,13 +3,19 @@ import pandas as pd
 import numpy as np
 import logging
 import joblib
+import boto3
 from flask import Flask, request, jsonify
+from io import BytesIO
 
 # Create a Flask app instance
 app = Flask(__name__)
 
 # Set up logging configuration
 logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+
+# Set up AWS S3 client
+s3 = boto3.client('s3')
+bucket_name = 'msia423-models'  # replace with your bucket name
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -29,12 +35,13 @@ def predict():
 
         # Load model based on provided model name
         try:
-            model = joblib.load(f'{model_name}_model.pkl')
+            response = s3.get_object(Bucket=bucket_name, Key=f'{model_name}_model.pkl')
+            model = joblib.load(BytesIO(response['Body'].read()))
             preprocessor = model.named_steps['preprocessor']
             estimator = model.named_steps['model']
             logging.debug('Model and preprocessor loaded successfully.')
-        except FileNotFoundError:
-            return jsonify({'error': f'Model not found: {model_name}'}), 400
+        except Exception as e:
+            return jsonify({'error': f'Model not found: {model_name}, error: {str(e)}'}), 400
 
         # Convert JSON data into a pandas DataFrame
         X = pd.DataFrame(data['Data'], index=[0])
