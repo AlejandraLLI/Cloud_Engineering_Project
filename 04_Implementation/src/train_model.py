@@ -1,26 +1,30 @@
-# Libraries 
-import yaml
+# Libraries
 from pathlib import Path
 import logging
-import numpy as np
-import pandas as pd
 from typing import Tuple
 import pickle
+import yaml
+import numpy as np
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
-from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
+from xgboost import XGBRegressor
 
 
 # Set logger
 logger = logging.getLogger(__name__)
 
-def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
+def train_and_evaluate(
+    features: pd.DataFrame,
+    config: dict
+) -> Tuple[pd.DataFrame, pd.DataFrame, dict, dict]:
+
     """
     Trains and evaluates models.
 
@@ -32,14 +36,14 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
         dict: Evaluation results.
         dict: Details of trained models.
     """
-        
+
     # Define preprocessor and models for Pipeline
     preprocessor: ColumnTransformer = define_preprocessor(config)
     models: dict = define_models(config)
 
     # Separate features and target
-    X: pd.DataFrame = features.drop('price', axis=1)
-    y: pd.Series = features['price']
+    x_features: pd.DataFrame = features.drop('price', axis=1)
+    y_target: pd.Series = features['price']
 
     # Initialize dictionaries for storing results and trained models
     results: dict = {}
@@ -47,15 +51,16 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
 
     # Split data into training and test sets
     split_config = config.get('train_test_split', {})
-    X_train, X_test, y_train, y_test = train_test_split(X, y, 
-                                                        test_size=split_config.get("test_size", 0.2),
-                                                        random_state=split_config.get("random_state", 42))
-    
-    logger.debug("Data split into training and test sets with test size %s", split_config.get("test_size", 0.2))
+    x_train, x_test, y_train, y_test = train_test_split(x_features, y_target,
+                                test_size=split_config.get("test_size", 0.2),
+                                random_state=split_config.get("random_state", 42))
+
+    logger.debug("Data split into training and test sets with test size %s", 
+                 split_config.get("test_size", 0.2))
 
     for name, model in models.items():
-        best_model = train_model(preprocessor, model, X_train, y_train)
-        y_pred = best_model.predict(X_test)
+        best_model = train_model(preprocessor, model, x_train, y_train)
+        y_pred = best_model.predict(x_test)
         model_results = calculate_metrics(y_test, y_pred)
 
         trained_models[name] = best_model
@@ -63,8 +68,8 @@ def train_and_evaluate(features: pd.DataFrame, config: dict) -> Tuple[pd.DataFra
         logger.info("Model %s trained and evaluated", name)
 
     # Add target variable to training and test sets
-    train: pd.DataFrame = pd.concat([X_train, y_train], axis=1)
-    test: pd.DataFrame = pd.concat([X_test, y_test], axis=1)
+    train: pd.DataFrame = pd.concat([x_train, y_train], axis=1)
+    test: pd.DataFrame = pd.concat([x_test, y_test], axis=1)
 
     return train, test, results, trained_models
 
@@ -106,22 +111,22 @@ def define_models(config: dict) -> dict:
                             'LinearRegression': LinearRegression,
                             'RandomForestRegressor': RandomForestRegressor,
                             'XGBRegressor': XGBRegressor
-                            }   
+                            }
 
     # Initialize dictionary for storing model instances
     models: dict = {}
 
     # Loop through models in config file and create model instances
     for model_name, model_info in config['models'].items():
-        ModelClass = models_mapping[model_info['class']]
-        model_instance = ModelClass(**model_info['parameters'])
+        model_class = models_mapping[model_info['class']]
+        model_instance = model_class(**model_info['parameters'])
         models[model_name] = model_instance
 
     logger.debug("Models defined")
     return models
 
 
-def train_model(preprocessor, model, X_train, y_train):
+def train_model(preprocessor, model, x_train, y_train):
     """
     Trains a model with or without hyperparameter tuning.
 
@@ -137,11 +142,11 @@ def train_model(preprocessor, model, X_train, y_train):
     """
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
     best_model = pipeline
-    best_model.fit(X_train, y_train)
+    best_model.fit(x_train, y_train)
 
     return best_model
 
-def calculate_metrics(y_test, y_pred):
+def calculate_metrics(y_test: pd.Series, y_pred: pd.Series) -> dict:
     """
     Calculates evaluation metrics.
 
@@ -155,9 +160,9 @@ def calculate_metrics(y_test, y_pred):
     mse = float(mean_squared_error(y_test, y_pred))
     mae = float(mean_absolute_error(y_test, y_pred))
     rmse = float(np.sqrt(mse))
-    r2 = float(r2_score(y_test, y_pred))
+    r_squared = float(r2_score(y_test, y_pred))
 
-    return {'MSE': mse, 'MAE': mae, 'RMSE': rmse, 'R2': r2}
+    return {'MSE': mse, 'MAE': mae, 'RMSE': rmse, 'R2': r_squared}
 
 
 def save_results(results: dict, save_path: Path):
@@ -173,7 +178,7 @@ def save_results(results: dict, save_path: Path):
     """
 
     try:
-        with open(save_path, 'w') as file:
+        with open(save_path, 'w', encoding='utf-8') as file:
             yaml.dump(results, file)
     except yaml.YAMLError:
         logger.error("Error while saving results to %s", save_path)
@@ -193,15 +198,15 @@ def save_best_model(results: dict, trained_models: dict, file_path: Path) -> Non
     Returns:
         None
     """
-    
+
     # Find the name of the model with the highest R2 score
     best_model_name = max(results, key=lambda model: results[model]['R2'])
 
     logger.info("Best model: %s", best_model_name)
-    
+
     # Get the best model
     best_model = trained_models[best_model_name]
-    
+
     # Save the best model as a pickle file
     with open(file_path, 'wb') as file:
         try:
@@ -209,8 +214,6 @@ def save_best_model(results: dict, trained_models: dict, file_path: Path) -> Non
         except pickle.PicklingError:
             logger.error("Error while saving model to %s", file_path)
         except FileNotFoundError:
-            logger.error("Error while saving model to %s", file_path)
-        except Exception as e:
             logger.error("Error while saving model to %s", file_path)
         else:
             logger.info("Model saved to %s", file_path)
@@ -227,15 +230,15 @@ def save_all_models(trained_models: dict, file_path: Path) -> None:
     Returns:
         None
     """
-    
+
     # Iterate over all models
     for model_name, model in trained_models.items():
 
         # Define specific path for each model
         specific_file_path = file_path / f"{model_name}.pkl"
-        
+
         logger.info("Saving model: %s", model_name)
-        
+
         # Save the model as a pickle file
         with open(specific_file_path, 'wb') as file:
             try:
@@ -243,8 +246,6 @@ def save_all_models(trained_models: dict, file_path: Path) -> None:
             except pickle.PicklingError:
                 logger.error("Error while saving model to %s", specific_file_path)
             except FileNotFoundError:
-                logger.error("Error while saving model to %s", specific_file_path)
-            except Exception as e:
                 logger.error("Error while saving model to %s", specific_file_path)
             else:
                 logger.info("Model saved to %s", specific_file_path)
