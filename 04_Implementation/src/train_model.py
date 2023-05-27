@@ -43,7 +43,7 @@ def train_and_evaluate(
 
     # Separate features and target
     x_features: pd.DataFrame = features.drop('price', axis=1)
-    y_target: pd.Series = features['price']
+    y_target: pd.DataFrame = features['price']
 
     # Initialize dictionaries for storing results and trained models
     results: dict = {}
@@ -126,7 +126,9 @@ def define_models(config: dict) -> dict:
     return models
 
 
-def train_model(preprocessor, model, x_train, y_train):
+def train_model(preprocessor: ColumnTransformer, model,
+                x_train: pd.DataFrame, y_train: pd.DataFrame
+                ) -> Pipeline:
     """
     Trains a model with or without hyperparameter tuning.
 
@@ -141,10 +143,9 @@ def train_model(preprocessor, model, x_train, y_train):
         sklearn model: The trained model.
     """
     pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('model', model)])
-    best_model = pipeline
-    best_model.fit(x_train, y_train)
+    pipeline.fit(x_train, y_train)
 
-    return best_model
+    return pipeline
 
 def calculate_metrics(y_test: pd.Series, y_pred: pd.Series) -> dict:
     """
@@ -165,7 +166,7 @@ def calculate_metrics(y_test: pd.Series, y_pred: pd.Series) -> dict:
     return {'MSE': mse, 'MAE': mae, 'RMSE': rmse, 'R2': r_squared}
 
 
-def save_results(results: dict, save_path: Path):
+def save_results(results: dict, save_path: Path) -> None:
     """
     Saves evaluation results to a yaml file.
 
@@ -200,7 +201,7 @@ def save_best_model(results: dict, trained_models: dict, file_path: Path) -> Non
     """
 
     # Find the name of the model with the highest R2 score
-    best_model_name = max(results, key=lambda model: results[model]['R2'])
+    best_model_name: str = max(results, key=lambda model: results[model]['R2'])
 
     logger.info("Best model: %s", best_model_name)
 
