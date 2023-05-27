@@ -3,7 +3,7 @@ import numpy as np
 import logging
 import yaml
 
-with open("04_Implementation/model_endpoint/config/webapp.yaml", "r") as f:
+with open("config/webapp.yaml", "r") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 logger = logger = logging.getLogger("aggregate_data")

@@ -1,5 +1,5 @@
 path:
-  image_path: 04_Implementation/model_endpoint/plane.jpg
+  image_path: plane.jpg
   flask_url: http://3.22.68.161:5000/predict
 
 message:
