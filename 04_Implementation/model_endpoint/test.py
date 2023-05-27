@@ -2,7 +2,7 @@ import requests
 import json
 
 # Define the API endpoint
-url = "http://127.0.0.1:5000/predict"
+url = "http://3.22.68.161:5000/predict"
 
 # Define sample input data
 input_data = {
@@ -18,7 +18,7 @@ input_data = {
         "destination": "Bangalore"
     },
     
-    "Model": "random_forest"
+    "Model": "linear_regression"
 }
 
 try:
