@@ -18,7 +18,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: 04_Implementation
+        working-directory: 04_Implementation/pipeline
     steps:
       - name: Checkout code
         uses: actions/checkout@v3 
