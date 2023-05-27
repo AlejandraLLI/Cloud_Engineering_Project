@@ -182,4 +182,8 @@ TO DO: DESCRIBE IMPLEMENTATION IN AWS
 
 ## Model Deployment
 
-TO DO: DESCRIBE WEB APP AND DEPLOYMENT
+This project utilizes a Flask application, predict_api.py, to serve the trained model as a RESTful API. The Flask application is responsible for receiving incoming HTTP POST requests, processing the request data, making predictions using the trained model, and responding with the prediction results.
+
+The model endpoint is hosted on an Amazon Web Services (AWS) EC2 instance. After the EC2 instance is configured and launched, the Flask application is deployed onto it, providing a publicly accessible IP address and port at which the model can be accessed. This makes the model accessible from anywhere and scalable to accommodate potential increases in requests. The server listens on port 5000 and accepts POST requests at the /predict endpoint.
+
+The request to the API should include a JSON body with two keys: 'Data' and 'Model'. The 'Data' key should contain the features for which a prediction is required, and the 'Model' key should specify the name of the trained model to use. The API then preprocesses the incoming data, loads the specified model from the S3 bucket, and uses it to generate a prediction. The prediction is then returned in the response.
