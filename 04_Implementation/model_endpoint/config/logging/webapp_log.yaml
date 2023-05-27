@@ -1,0 +1,27 @@
+version: 1
+
+handlers:
+  stream_handler: 
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: formatter
+    stream: ext://sys.stdout
+
+formatters:
+  formatter:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+
+loggers:
+  webapp:
+    level: DEBUG
+    handlers: [stream_handler]
+    propagate: False
+  aggregate_data: 
+    level: DEBUG
+    handlers: [stream_handler]
+    propagate: False
+
+root:
+  level: DEBUG
+  handlers: [stream_handler]
