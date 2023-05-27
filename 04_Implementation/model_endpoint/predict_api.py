@@ -1,75 +1,117 @@
-# Import necessary libraries
+"""
+This module provides an API endpoint for making predictions using a trained model.
+"""
+
+import logging
+from io import BytesIO
+
 import pandas as pd
 import numpy as np
-import logging
 import joblib
 import boto3
 from flask import Flask, request, jsonify
-from io import BytesIO
+
+from botocore.exceptions import BotoCoreError, NoCredentialsError
+from sklearn.exceptions import NotFittedError
+from joblib import numpy_pickle
+
 
 # Create a Flask app instance
 app = Flask(__name__)
 
 # Set up logging configuration
-logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+logging.basicConfig(
+    filename="app.log",
+    filemode="w",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.DEBUG,
+)
 
 # Set up AWS S3 client
-s3 = boto3.client('s3')
-bucket_name = 'msia423-models'  # replace with your bucket name
+s3 = boto3.client("s3")
+BUCKET_NAME = "msia423-models"  # replace with your bucket name
 
-@app.route('/predict', methods=['POST'])
+
+@app.route("/predict", methods=["POST"])
 def predict():
     """Endpoint for making predictions using a trained model"""
+    # Retrieve JSON data from the request
+    data = request.get_json()
+    logging.debug("Received JSON data: %s", data)
+
+    # Verify that 'Data' and 'Model' keys are present in the request data
+    if "Data" not in data or "Model" not in data:
+        return (
+            jsonify({"error": "Data and Model keys are required in the request body"}),
+            400,
+        )
+
+    # Retrieve model name from data
+    model_name = data["Model"]
+    logging.debug("Model name: %s", model_name)
+
+    # Load model based on provided model name
     try:
-        # Retrieve JSON data from the request
-        data = request.get_json()
-        logging.debug('Received JSON data: %s', data)
-
-        # Verify that 'Data' and 'Model' keys are present in the request data
-        if 'Data' not in data or 'Model' not in data:
-            return jsonify({'error': 'Data and Model keys are required in the request body'}), 400
-
-        # Retrieve model name from data
-        model_name = data['Model']
-        logging.debug('Model name: %s', model_name)
-
-        # Load model based on provided model name
+        response = s3.get_object(Bucket=BUCKET_NAME, Key=f"{model_name}_model.pkl")
         try:
-            response = s3.get_object(Bucket=bucket_name, Key=f'{model_name}_model.pkl')
-            model = joblib.load(BytesIO(response['Body'].read()))
-            preprocessor = model.named_steps['preprocessor']
-            estimator = model.named_steps['model']
-            logging.debug('Model and preprocessor loaded successfully.')
-        except Exception as e:
-            return jsonify({'error': f'Model not found: {model_name}, error: {str(e)}'}), 400
+            model = joblib.load(BytesIO(response["Body"].read()))
+            preprocessor = model.named_steps["preprocessor"]
+            estimator = model.named_steps["model"]
+            logging.debug("Model and preprocessor loaded successfully.")
+        except numpy_pickle.NumpyPicklingError as pickle_error:
+            logging.exception("Error occurred during loading the model!")
+            return (
+                jsonify(
+                    {
+                        "error": f"Model could not be deserialized: {model_name},\
+                              error: {str(pickle_error)}"
+                    }
+                ),
+                400,
+            )
+    except (BotoCoreError, NoCredentialsError) as s3_error:
+        logging.exception("Error occurred during getting model from S3!")
+        return (
+            jsonify(
+                {
+                    "error": f"Model not found in S3: {model_name}, error: {str(s3_error)}"
+                }
+            ),
+            400,
+        )
 
-        # Convert JSON data into a pandas DataFrame
-        X = pd.DataFrame(data['Data'], index=[0])
-        logging.debug('Converted JSON data to DataFrame.')
+    # Convert JSON data into a pandas DataFrame
+    dataframe = pd.DataFrame(data["Data"], index=[0])
+    logging.debug("Converted JSON data to DataFrame.")
 
-        # Apply preprocessor to input data
-        X_processed = preprocessor.transform(X)
-        logging.debug('Preprocessing applied successfully.')
+    # Apply preprocessor to input data
+    processed_data = preprocessor.transform(dataframe)
+    logging.debug("Preprocessing applied successfully.")
 
-        try:
-            # Make a prediction using the trained model
-            prediction = estimator.predict(X_processed)
-            logging.debug('Prediction made successfully.')
-        except Exception as e:
-            logging.exception("Error occurred during prediction!")
-            return jsonify({'error': 'Error during prediction: {}'.format(e)}), 500
+    try:
+        # Make a prediction using the trained model
+        prediction = estimator.predict(processed_data)
+        logging.debug("Prediction made successfully.")
+    except NotFittedError as prediction_error:
+        logging.exception("Error occurred during prediction!")
+        return (
+            jsonify({"error": f"Error during prediction: {str(prediction_error)}"}),
+            500,
+        )
 
-        # Create a response containing the prediction
+    # Create a response containing the prediction
+    try:
         response = {
-            'prediction': float(np.exp(prediction[0]))  # Revert the log transformation and convert to float
+            "prediction": float(
+                np.exp(prediction[0])
+            )  # Revert the log transformation and convert to float
         }
-
         return jsonify(response)
+    except TypeError as error:
+        logging.exception("Error occurred while creating response!")
+        return jsonify({"error": f"Error during response creation: {str(error)}"}), 500
 
-    except Exception as e:
-        logging.exception("Error occurred in prediction!")
-        return jsonify({'error': str(e)}), 500
 
 # Run the Flask app
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)
