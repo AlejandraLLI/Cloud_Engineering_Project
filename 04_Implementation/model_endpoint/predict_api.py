@@ -29,7 +29,33 @@ logging.basicConfig(
 
 # Set up AWS S3 client
 s3 = boto3.client("s3")
-BUCKET_NAME = "msia423-models"  # replace with your bucket name
+BUCKET_NAME = "msia423-g7"  # replace with your bucket name
+PREFIX = "experiments/"  # replace with your prefix
+
+MODELS = {}  # Dictionary to hold all models
+
+
+def load_models():
+    """Loads all models into memory when Flask app starts"""
+    models_list = ["linear_regression", "random_forest", "xgboost"]
+
+    for model_name in models_list:
+        try:
+            response = s3.get_object(
+                Bucket=BUCKET_NAME, Key=f"{PREFIX}{model_name}.pkl"
+            )
+            try:
+                model = joblib.load(BytesIO(response["Body"].read()))
+                MODELS[model_name] = model  # Add the model to the MODELS dictionary
+                logging.debug("Model %s loaded successfully.", model_name)
+            except numpy_pickle.NumpyPicklingError as pickle_error:
+                logging.exception("Error occurred during loading the model!")
+        except (BotoCoreError, NoCredentialsError) as s3_error:
+            logging.exception("Error occurred during getting model from S3!")
+
+
+# Call the function to load models
+load_models()
 
 
 @app.route("/predict", methods=["POST"])
@@ -50,35 +76,14 @@ def predict():
     model_name = data["Model"]
     logging.debug("Model name: %s", model_name)
 
-    # Load model based on provided model name
+    # Retrieve the model from memory
     try:
-        response = s3.get_object(Bucket=BUCKET_NAME, Key=f"{model_name}_model.pkl")
-        try:
-            model = joblib.load(BytesIO(response["Body"].read()))
-            preprocessor = model.named_steps["preprocessor"]
-            estimator = model.named_steps["model"]
-            logging.debug("Model and preprocessor loaded successfully.")
-        except numpy_pickle.NumpyPicklingError as pickle_error:
-            logging.exception("Error occurred during loading the model!")
-            return (
-                jsonify(
-                    {
-                        "error": f"Model could not be deserialized: {model_name},\
-                              error: {str(pickle_error)}"
-                    }
-                ),
-                400,
-            )
-    except (BotoCoreError, NoCredentialsError) as s3_error:
-        logging.exception("Error occurred during getting model from S3!")
-        return (
-            jsonify(
-                {
-                    "error": f"Model not found in S3: {model_name}, error: {str(s3_error)}"
-                }
-            ),
-            400,
-        )
+        model = MODELS[model_name]
+        preprocessor = model.named_steps["preprocessor"]
+        estimator = model.named_steps["model"]
+        logging.debug("Model and preprocessor retrieved from memory successfully.")
+    except KeyError:
+        return jsonify({"error": f"Model {model_name} not found in memory"}), 400
 
     # Convert JSON data into a pandas DataFrame
     dataframe = pd.DataFrame(data["Data"], index=[0])
