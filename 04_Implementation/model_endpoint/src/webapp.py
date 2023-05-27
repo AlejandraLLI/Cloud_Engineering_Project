@@ -15,7 +15,7 @@ from boto3.exceptions import Boto3Error
 st.set_page_config(layout="wide")
 
 # read configuration file
-with open("04_Implementation/model_endpoint/config/logging/webapp_log.yaml", "r") as f:
+with open("config/logging/webapp_log.yaml", "r") as f:
     log_cfg = yaml.safe_load(f.read())
 logging.config.dictConfig(log_cfg)
 logger = logging.getLogger("webapp")
@@ -24,7 +24,7 @@ parser = argparse.ArgumentParser(
     description="Acquire, clean, and create features from clouds data"
 )
 parser.add_argument(
-    "--config", default="04_Implementation/model_endpoint/config/webapp.yaml",
+    "--config", default="config/webapp.yaml",
     help="Path to configuration file"
 )
 args = parser.parse_args()
@@ -174,7 +174,7 @@ model_type = st.sidebar.selectbox(config["message"]["model_input"],
 model_dict = {
     "XGBoost": "xgboost",
     "Random Forest": "random_forest",
-    "Linear Regression": "linear"
+    "Linear Regression": "linear_regression"
 }
 
 def predict():
