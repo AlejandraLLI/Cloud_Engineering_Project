@@ -1,15 +1,17 @@
 """
 This module provides functions for reading the original data sources and creating a raw
-data frame.   
+data frame.
 """
-# Libraries 
-import pandas as pd
-from pathlib import Path
-import zipfile
-import src.aws_utils as aws
-import logging
+# Libraries
 import io
 import sys
+import logging
+from pathlib import Path
+import zipfile
+import pandas as pd
+
+import src.aws_utils as aws
+
 
 # Set logger
 logger = logging.getLogger(__name__)
@@ -27,7 +29,7 @@ def raw_data(bucket_name: str, file_key: str) -> pd.DataFrame:
         df_raw (pd.DataFrame): A DataFrame containing the data from all csv files.
     """
     # --- Read csv file directly from the zip ---
-    
+
     # Download zip file from S3
     source_file = aws.get_data_s3(bucket_name, file_key)
 
@@ -37,26 +39,26 @@ def raw_data(bucket_name: str, file_key: str) -> pd.DataFrame:
     except zipfile.BadZipFile:
         logger.error("Error while trying to unzip the source_file. Process can't continue")
         sys.exit(1)
-    
+
     # Get list of files
     files = archive.namelist()
     logger.debug("Files in zip file: %s", files)
 
-    # --- Load data sets --- 
+    # --- Load data sets ---
     df_raw = pd.DataFrame()
     for file in files[1:]:
-        try: 
+        try:
             with archive.open(file) as csvfile:
-                df_temp = pd.read_csv(csvfile) 
+                df_temp = pd.read_csv(csvfile)
         except pd.errors.ParserError as err:
             logger.error("Error while reading csv file %s. Error: %s", file, err)
         else:
-            df_temp["class"] = file.replace(".csv", "")  
+            df_temp["class"] = file.replace(".csv", "")
             df_raw = pd.concat([df_raw, df_temp])
             logger.debug("File %s appended to raw dataframe.", file)
 
-    # Check rawdata shape. 
-    logger.info("Raw data set successfully created from zip file.") 
+    # Check rawdata shape.
+    logger.info("Raw data set successfully created from zip file.")
     logger.debug("Raw data set shape: %s", df_raw.shape)
 
     # Function output.
