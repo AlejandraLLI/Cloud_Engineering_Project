@@ -8,12 +8,14 @@ run_config:
   output: artifacts
 
 aws_config:
-  upload: True
+  upload: False
   bucket_name: msia423-g7
   prefix: experiments
 
 raw_data:
-  file_key: source_data.zip
+  file_keys: 
+    - business_raw.csv
+    - economy_raw.csv
 
 clean_data:
   clean_config:

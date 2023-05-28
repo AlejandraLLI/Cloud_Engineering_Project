@@ -157,16 +157,14 @@ def clean_data(raw_data: pd.DataFrame, clean_config: dict) -> pd.DataFrame:
 
     # Convert time take to hours
     for new_col, time_col in clean_config["time_to_hours"].items():
-        #df_clean[new_col] = raw_data[time_col].apply(lambda x: get_duration(x))
-        df_clean[new_col] = raw_data[time_col].apply(get_duration)
+        df_clean[new_col] = raw_data[time_col].apply(lambda x: get_duration(x))
         logger.debug("New column %s created converting column %s to hours.", new_col, time_col)
 
 
     # Get number of stops
-    #.apply(lambda x: get_stops(x, **clean_config["get_stops"]))
     for new_col, stop_col in clean_config["stops_cols"].items():
         df_clean[new_col] = raw_data[stop_col]\
-                            .apply(get_stops(**clean_config["get_stops"]))
+                            .apply(lambda x: get_stops(x, **clean_config["get_stops"]))
         logger.debug("New column %s created from column %s", new_col, stop_col)
 
 
