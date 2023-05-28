@@ -1,7 +1,7 @@
 # Cloud_Engineering Final Project
 ## Predicting Airline Prices 
 ## Developed by: 
-- Alejandra Lelo de Larrea Ibarra ali8110
+- Alejandra Lelo de Larrea Ibarra
 - Bannasorn Paspanthong
 - Ruben Nakano
 - Samuel Swain
@@ -11,7 +11,7 @@ This project develops a model to classify clouds into one of two types based on 
 <br/>
 
 ## Table of Contents 
-- [Buisness Problem](#id-BusinessProblem)
+- [Business Problem](#id-BusinessProblem)
 - [Data Description](#id-DataDesc)
 - [Data Science Project](#id-DSProject)
 - [Pipeline](#id-Pipeline)
@@ -65,7 +65,7 @@ To acomplish this, we follow the next steps:
 - Model Evaluation & Validation: Evaluate models’ hyperparameters using validation accuracy.
 - Model Deployment: Integrate the model into travel agency's website.
 
-The data science solution is implemented in two steps: pipeline and web application. We write python modules for the different tasks and provide docker images so that the solution can be implemented regardless of the OS and for reproducibility purposes. Both solutions are implemented leveraging AWS.  
+The data science solution is implemented in two steps: pipeline and web application. We write python modules for the different tasks and provide docker images so that the solution can be implemented regardless of the OS and for reproducibility purposes. Both solutions are implemented leveraging AWS. The code for pipeline and app implementation can be found under the `04_Impleentation` folder. 
 
 ![Architecture Diagram](03_Img/ArchitectureDiagram.png)
 
