@@ -12,178 +12,126 @@ This project develops a model to classify clouds into one of two types based on 
 
 ## Table of Contents 
 - [Buisness Problem](#id-BusinessProblem)
-- [Project Description](#id-ProjectDesc)
-- [Cloning the Repository](#id-CloneRepo)
-- [Running Locally](#id-RunLocal)
-- [Running Docker Container](#id-RunContainer)
-- [AWS Implementation](#id-Implementation)
-- [Model Deployment](#id-Deployment)
+- [Data Description](#id-DataDesc)
+- [Data Science Project](#id-DSProject)
+- [Pipeline](#id-Pipeline)
+- [Web Application](#id-WebApp)
+- [Project Structure](#id-Structure)
 
 <br/><div id='id-BuisnessProblem'/>
 
 ## Business Problem
 
-TO DO: WRITE ABOUT BUSINESS PROBLEM HERE
+Airline ticket prices are subject to constant fluctuations due to various factors such as demand, availability, competition, seasonal trends, and economic conditions. 
+
+For airlines, having a reliable prediction system can greatly assist in:
+- Make informed decisions regarding pricing strategies, revenue management, and resource allocation based on the forecasts.
+- Revenue Optimization: airlines can leverage price predictions to optimize their resource allocation and revenue management strategies. 
+- Customer retention: satisfied customers are more likely to choose an airline that consistently offers transparent and fair pricing.
+- Competitive Advantage: Developing a robust prediction system can provide airlines with a competitive edge in the market, helping airlines differentiate themselves from competitors.
+
+Additionally, travelers can benefit from accurate price ppredictions by: 
+- Improving the decision making: travelers can plan their trips more effectively by choosing the most cost-effective options.
+- Enhancing customer experience: reliable price prediciton reduces uncertainty and allow customers to secure the best deal. 
+
+
+<br/><div id='id-DataDesc'/>
 
 ## Data description 
 
-TO DO: WRITE ABOUT RAW DATA HERE. MENTION RAW DATA IS UPLOADED MANUALLY TO S3 BUCKET.
+Data for the project is collected from easemytrip.com and available on [Kagel](https://www.kaggle.com/datasets/shubhambathwal/flight-price-prediction).
 
-<br/><div id='id-ProjectDesc'/>
+It contains inforemation about flights between India’s top 6 metropolitan cities (approximately 300,000 data points, 25 MB) from Feb 11th, 2022 to Mar 31st, 2022. (50 days) with the following features: 
+- airline 
+- flight number
+- seat type
+- departure time
+- arrival time
+- origin
+- destination
+- number of stops 
+- flight duration
 
-## Project Description
+<br/><div id='id-DSProject'/>
 
-The project develops the following steps: 
+## Data Science Project
 
-- `src/raw_data.py` module: Read the multiple csv files from the source data in the S3 bucket and concateneate them into a single dataframe ready to be processed. 
-- `src/clean_data.py` module: Clean/normalize the data
-- `src/generate_features.py` module: generate features by dorpping specific columns, filtering selected airlines and log_transforming some features. 
-- `src/train_model.py` module: split data in train and test, train selected ML models, score the model on the test setand calculate performance metrics on test set.
+The goal of this project is to develop a predictive model to forecast airline ticket prices and deploy the solution as a web application. 
 
-All the parameters needed to run the pipeline are setup in the `default-config.yaml` file under the `config` folder and are automatically loaded when running the pipeline. Parameters are listed by module to facilitate the interpretation and understanding. You can edit any of the input parameters to adjust the pipeline for specific experiments. Specific information on each parameter can be found in the function documentation of each module. 
+To acomplish this, we follow the next steps: 
+- Data Collection: Obtain comprehensive data on historic flight prices and related variables.
+- Data Preparation & Exploration: Clean and explore the data for insights. Enrich dataset with extra features.
+- Model Development & Training: Train selected machine learning models on data.
+- Model Evaluation & Validation: Evaluate models’ hyperparameters using validation accuracy.
+- Model Deployment: Integrate the model into travel agency's website.
 
-Note that all key "artifacts" are saved to disk under the `artifacts` folder (which will be created automatically if it does not exist) and logs are automatically printed to the `config/logging` folder under the `pipeline.log` file. The logging level is set to INFO by default, but the log configuration can also be customized in the `local.conf` file. 
+The data science solution is implemented in two steps: pipeline and web application. We write python modules for the different tasks and provide docker images so that the solution can be implemented regardless of the OS and for reproducibility purposes. Both solutions are implemented leveraging AWS.  
 
-Additionally, as a final functionality, the process allows the upload of all generated artifacts into a specific S3 bucket. To this end, you need to set the following variables in the `default-config.yaml` file: 
+![Architecture Diagram](03_Img/ArchitectureDiagram.png)
 
-- `upload`: indicates if files in the artifacts folder should be uploaded to an AWS S3 bucket. By default it is set to `False`. 
-- `bucket_name`: name of the S3 to which to upload the artifacts. Default is `clouds-ali8110`.
-- `prefix`: name of the folder to create inside S3 bucket to upload artifacts. Default is set to `experiments`.
+<br/><div id='id-Pipeline'/>
 
-The process uses "default credential chain" in order to be able to upload the artifacts directly to the AWS S3 bucket. Therefore, to be able to use this functionality of the process you need to: 
+## Stage 1: Pipeline
 
-1. Have an existing AWS account with an sso configuration and an active session. 
-Note: Refer to [AWS documentation](https://docs.aws.amazon.com/singlesignon/latest/userguide/useraccess.html) to setup your account and sso configuration. 
+This stage of the project develops the entire piple to train different ML models to predict airline prices for different flight configurations.
 
-2. Have the specified S3 bucket already created in your account. If the bucket does not exist, the process will not be able to upload any files. 
+Detailed instructions to run and reproduce the pipeline are included in the `README` file inside the `pipeline` folder. 
 
-Finally, the project contains tests for the generate features module under the `tests\test_generate_features.py` file. 
+<br/><div id='id-WebApp'/>
 
-<br/><div id='id-CloneRepo'/>
-## Cloning the repository
+## Stage 2: Web application
 
-To be able to run this project, you first need to clone this repo as follows: 
+This stage of the project uses Flask application as backend to serve the trianed model as a the model endopoint and Streamlit as front end to deploy a web application that can predict the price of a flight given some flight characteristics. 
 
-1. Open a terminal and navigate to the location where you want to clone the repo. 
+Detailed instructions to run and reproduce the application are included in the `README` file inside the `app` folder. 
 
-2. Clone the repository:
+<br/><div id='id-Structure'/>
 
-    ```bash
-    git clone git@github.com:AlejandraLLI/Cloud_Engineering_Project.git
-    ```
-3. Navigate into the cloned repository and into the 04_Implementation/pipeline folder: 
-
-    ```bash
-    cd Cloud_Engineering_Project/04_Implementation/pipeline
-    ```
-
-<br/><div id='id-RunLocal'/>
-
-## Running locally 
-
-Once the repo has been cloned and you are inside the project pipeline folder, the complete pipeline can be run locally executing the following steps with a version of python >=3.9:
-
-1. Make any changes to the `config/default-config.yaml` file and save the file. 
-
-2. On the terminal, run the following commands to run the pipeline:
-
-    ```bash
-    # Create a python environment
-    python -m venv .venv
-
-    #Activate environment
-    source .venv/bin/activate
-
-    # Install required packages
-    pip install -r requirements_main.txt
-
-    # Run the complete pipeline 
-    python pipeline.py
-     ```
-
-3. On the terminal, run the following commands to run the tests:
-    ```bash
-    # Deactivate previous environment 
-    deactivate
-
-    # Go to the tests folder
-    cd tests
-
-    # Create a python environment
-    python -m venv .venvtests
-
-    #Activate environment
-    source .venvtests/bin/activate
-
-    # Install required packages
-    pip install -r ../requirements_tests.txt
-
-    # Run tests 
-    pytest
-    ```
-
-<br/><div id='id-RunContainer'/>
-
-## Running Docker Container 
-
-Additionally, for simplification and replicability purposes, two docker images were built and included with the repo under the `dockerfiles` folder: `Dockerfile.main` to run the main pipeline and `Dockerfile.tests` to run the tests. 
-
-The following instructions detail how to build and run each of the containers. Make sure to update the `default-config.yaml` parameters before building the docker image. 
-
-### Build he Docker Image
-
-```bash
-# Build docker image for pipeline
-docker build -t airlines-pipeline -f dockerfiles/Dockerfile.pipeline_main .
+## Project structure
 ```
-
-### Run the entire model pipeline
-
-Note that for this step, you need to have an existing AWS account with an sso configuration.
-
-```bash
-# Login to refresh credentials 
-aws sso login --profile <sso_profile_name_here>
-
-# Verify your identity 
-aws sts get-caller-identity --profile <sso_profile_name_here>
-
-# Run docker image passing your sso configuration 
-docker run -v ~/.aws:/root/.aws -e AWS_PROFILE=<sso_profile_name_here> airlines-pipeline
+.
+├── app
+│   ├── README
+│   ├── config
+│   │   ├── logging
+│   │   │   └── webapp_log.yaml
+│   │   └── webapp.yaml
+│   ├── dockerfiles
+│   │   └── Dockerfile
+│   ├── plane.jpg
+│   ├── requirements.txt
+│   ├── src
+│   │   ├── aggregate_data.py
+│   │   ├── predict_api.py
+│   │   └── webapp.py
+│   └── test.py
+└── pipeline
+    ├── README
+    ├── config
+    │   ├── default-config.yaml
+    │   └── logging
+    │       ├── local.conf
+    │       └── pipeline.log
+    ├── dockerfiles
+    │   ├── Dockerfile.pipeline_main
+    │   └── Dockerfile.tests
+    ├── notebooks
+    │   ├── Clean_Data.ipynb
+    │   ├── EDA.ipynb
+    │   └── Modeling.ipynb
+    ├── pipeline.py
+    ├── requirements_main.txt
+    ├── requirements_tests.txt
+    ├── src
+    │   ├── __init__.py
+    │   ├── aws_utils.py
+    │   ├── clean_data.py
+    │   ├── generate_features.py
+    │   ├── raw_data.py
+    │   └── train_model.py
+    └── tests
+        ├── __init__.py
+        ├── test_clean_data.py
+        ├── test_generate_features.py
+        └── test_train_model.py
 ```
-
-Note: The artifacts generated in the pipeline are "written to disk" inside the container. If you wish to have a copy of the artifacts in your local machine you need to mount the artifacts volume to the container. This can be run by replacing the last command with the following: 
-
-```bash
-docker run -v ~/.aws:/root/.aws -v "$(pwd)"/artifacts/:/app/artifacts/ -e AWS_PROFILE=<sso_profile_name_here> airlines-pipeline
-``` 
-
-### Build the docker image for tests
-
-```bash
-# Build docker image for test
-docker build -t airlines-tests -f dockerfiles/Dockerfile.tests . 
-```
-
-### Run the tests
-
-```bash
-# Run docker image for tests
-docker run airlines-tests
-```
-
-<br/><div id='id-Implementation'/>
-
-## AWS Implementation
-
-TO DO: DESCRIBE IMPLEMENTATION IN AWS
-
-<br/><div id='id-Deployment'/>
-
-## Model Deployment
-
-This project utilizes a Flask application, predict_api.py, to serve the trained model as a RESTful API. The Flask application is responsible for receiving incoming HTTP POST requests, processing the request data, making predictions using the trained model, and responding with the prediction results.
-
-The model endpoint is hosted on an Amazon Web Services (AWS) EC2 instance. After the EC2 instance is configured and launched, the Flask application is deployed onto it, providing a publicly accessible IP address and port at which the model can be accessed. This makes the model accessible from anywhere and scalable to accommodate potential increases in requests. The server listens on port 5000 and accepts POST requests at the /predict endpoint.
-
-The request to the API should include a JSON body with two keys: 'Data' and 'Model'. The 'Data' key should contain the features for which a prediction is required, and the 'Model' key should specify the name of the trained model to use. The API then preprocesses the incoming data, loads the specified model from the S3 bucket, and uses it to generate a prediction. The prediction is then returned in the response.
