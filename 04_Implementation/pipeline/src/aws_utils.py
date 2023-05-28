@@ -37,15 +37,16 @@ def get_data_s3(bucket_name: str, file_key: str) -> typing.Any:
 
     # Get object from S3
     try:
-        obj = s3_client.get_object(Bucket = bucket_name, Key = file_key)
+        response = s3_client.get_object(Bucket = bucket_name, Key = file_key)
     except botocore.exceptions.ClientError as err:
         logger.error("Error accessing %s. The process can't continue downloading the file" +
                      "from S3 bucket. Error: %s",file_key, err)
         sys.exit(1)
     else:
         # Read object
-        content = obj["Body"].read()
-        logger.info("File %s recovered from S3 bucket %s", file_key, bucket_name)
+        content = response["Body"].read().decode('utf-8')
+    
+    logger.info("File %s recovered from S3 bucket %s", file_key, bucket_name)
 
     # Function output
     return content

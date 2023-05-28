@@ -16,7 +16,7 @@ import src.aws_utils as aws
 # Set logger
 logger = logging.getLogger(__name__)
 
-def raw_data(bucket_name: str, file_key: str) -> pd.DataFrame:
+def raw_data(bucket_name: str, file_keys: list[str]) -> pd.DataFrame:
     """
     This function reads multiple csv files from a zip file stored in an AWS S3 bucket,
     concatenates them into a single DataFrame, and returns it.
@@ -28,36 +28,31 @@ def raw_data(bucket_name: str, file_key: str) -> pd.DataFrame:
     Returns:
         df_raw (pd.DataFrame): A DataFrame containing the data from all csv files.
     """
-    # --- Read csv file directly from the zip ---
-
-    # Download zip file from S3
-    source_file = aws.get_data_s3(bucket_name, file_key)
-
-    # Un zip and get list of files
-    try:
-        archive = zipfile.ZipFile(io.BytesIO(source_file), 'r')
-    except zipfile.BadZipFile:
-        logger.error("Error while trying to unzip the source_file. Process can't continue")
-        sys.exit(1)
-
-    # Get list of files
-    files = archive.namelist()
-    logger.debug("Files in zip file: %s", files)
-
-    # --- Load data sets ---
+    # Empty dataframe for raw data.
     df_raw = pd.DataFrame()
-    for file in files[1:]:
+
+    # Loop through files to download
+    for file in file_keys:
+        # Download file from S3
+        df_temp = aws.get_data_s3(bucket_name, file)
+        logger.info("File %s downloaded from %s", file, bucket_name)
+
+        # Open as CSV
         try:
-            with archive.open(file) as csvfile:
+            with df_temp.open(file) as csvfile:
                 df_temp = pd.read_csv(csvfile)
         except pd.errors.ParserError as err:
             logger.error("Error while reading csv file %s. Error: %s", file, err)
         else:
-            df_temp["class"] = file.replace(".csv", "")
+            logger.info("CSV file %s read successfully.")
+            # Add class type
+            df_temp["class"] = file.replace("_raw.csv", "")
+
+            # Concatenate to raw dataframe
             df_raw = pd.concat([df_raw, df_temp])
             logger.debug("File %s appended to raw dataframe.", file)
 
-    # Check rawdata shape.
+    # Check rawd ata shape.
     logger.info("Raw data set successfully created from zip file.")
     logger.debug("Raw data set shape: %s", df_raw.shape)
 
